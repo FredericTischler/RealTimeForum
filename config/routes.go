@@ -15,4 +15,7 @@ func InitializeRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /posts/{id}", handlers.GetPostsByIdHandler)
 	mux.HandleFunc("POST /posts/comment/{id}", handlers.PostCommentHandler)
 	mux.HandleFunc("GET /posts/comment/{id}", handlers.GetCommentHandler)
+	mux.HandleFunc("POST /message", handlers.MessageHandler)
+	mux.HandleFunc("GET /message", handlers.GetMessageHandler)
+
 }
