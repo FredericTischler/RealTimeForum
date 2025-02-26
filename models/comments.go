@@ -12,3 +12,8 @@ type Comment struct {
 	content   string
 	createdAt time.Time
 }
+
+type GetCommentsResponse struct {
+	response *ResponseBody
+	comments []*Comment
+}

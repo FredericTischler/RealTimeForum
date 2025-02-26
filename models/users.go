@@ -18,19 +18,12 @@ type User struct {
 }
 
 type RegisterResponse struct {
-	status  int
-	message string
-	userId  uuid.UUID
+	response *ResponseBody
+	userId   uuid.UUID
 }
 
 type LoginResponse struct {
-	status  int
-	message string
-	userId  uuid.UUID
-	token   string
-}
-
-type LogoutResponse struct {
-	status  int
-	message string
+	response *ResponseBody
+	userId   uuid.UUID
+	token    string
 }

@@ -6,6 +6,6 @@ func PostCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetCommentHandler(w http.ResponseWriter, r *http.Request) {
+func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 
 }

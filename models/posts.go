@@ -13,3 +13,18 @@ type Post struct {
 	category  string
 	createdAt time.Time
 }
+
+type PostResponse struct {
+	response *ResponseBody
+	post     *Post
+}
+
+type GetPostsResponse struct {
+	response *ResponseBody
+	post     []*Post
+}
+
+type GetPostResponse struct {
+	response *ResponseBody
+	post     *Post
+}
