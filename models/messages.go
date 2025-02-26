@@ -13,3 +13,13 @@ type Message struct {
 	sentAt     time.Time
 	isRead     bool
 }
+
+type MessageResponse struct {
+	response *ResponseBody
+	message  *Message
+}
+
+type GetMessagesResponse struct {
+	response *ResponseBody
+	messages []*Message
+}
