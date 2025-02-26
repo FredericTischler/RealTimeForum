@@ -27,3 +27,13 @@ type LoginResponse struct {
 	userId   uuid.UUID
 	token    string
 }
+
+type GetUsersResponse struct {
+	response *ResponseBody
+	users    []*User
+}
+
+type GetUserResponse struct {
+	response *ResponseBody
+	user     *User
+}
