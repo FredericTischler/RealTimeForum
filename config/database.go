@@ -32,7 +32,33 @@ func DefineTables(db *sql.DB) {
 			"created_at" DATETIME NOT NULL
 		);`
 
+	postsTable := `CREATE TABLE IF NOT EXISTS posts (
+			"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"uuid" VARCHAR(36) NOT NULL UNIQUE,
+			"title" VARCHAR(255) NOT NULL,
+			"content" TEXT NOT NULL,
+			"category" VARCHAR(30) NOT NULL,
+			"created_at" DATETIME NOT NULL,
+			"update_at" DATETIME,
+			"user_id" INTEGER NOT NULL UNIQUE,
+			FOREIGN KEY(user_id) REFERENCES users(uuid)
+		);`
+
+	commentsTable := `CREATE TABLE IF NOT EXISTS comments (
+			"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"uuid" VARCHAR(36) NOT NULL UNIQUE,
+			"content" TEXT NOT NULL,
+			"created_at" DATETIME NOT NULL,
+			"user_id" INTEGER NOT NULL UNIQUE,
+			"post_id" INTEGER NOT NULL UNIQUE,
+			FOREIGN KEY(user_id) REFERENCES users(uuid),
+			FOREIGN KEY(post_id) REFERENCES posts(uuid) ON DELETE CASCADE
+
+		);`
+
 	CreateTable(db, usersTable, "users")
+	CreateTable(db, postsTable, "posts")
+	CreateTable(db, commentsTable, "comments")
 
 }
 
