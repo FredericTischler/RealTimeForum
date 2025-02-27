@@ -40,7 +40,7 @@ func DefineTables(db *sql.DB) {
 			"category" VARCHAR(30) NOT NULL,
 			"created_at" DATETIME NOT NULL,
 			"update_at" DATETIME,
-			"user_id" INTEGER NOT NULL UNIQUE,
+			"user_id" VARCHAR(36) NOT NULL UNIQUE,
 			FOREIGN KEY(user_id) REFERENCES users(uuid)
 		);`
 
@@ -49,16 +49,28 @@ func DefineTables(db *sql.DB) {
 			"uuid" VARCHAR(36) NOT NULL UNIQUE,
 			"content" TEXT NOT NULL,
 			"created_at" DATETIME NOT NULL,
-			"user_id" INTEGER NOT NULL UNIQUE,
-			"post_id" INTEGER NOT NULL UNIQUE,
+			"user_id" VARCHAR(36) NOT NULL UNIQUE,
+			"post_id" VARCHAR(36) NOT NULL UNIQUE,
 			FOREIGN KEY(user_id) REFERENCES users(uuid),
 			FOREIGN KEY(post_id) REFERENCES posts(uuid) ON DELETE CASCADE
 
 		);`
 
+	messagesTable := `CREATE TABLE IF NOT EXISTS messages(
+			"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"uuid" VARCHAR(36) NOT NULL UNIQUE,
+			"sender_id" VARCHAR(36) NOT NULL UNIQUE,
+			"receiver_id" VARCHAR(36) NOT NULL UNIQUE,
+			"content" TEXT NOT NULL,
+			"created_at" DATETIME NOT NULL,
+			FOREIGN KEY(sender_id) REFERENCES users(uuid),
+			FOREIGN KEY(receiver_id) REFERENCES users(uuid)
+	)`
+
 	CreateTable(db, usersTable, "users")
 	CreateTable(db, postsTable, "posts")
 	CreateTable(db, commentsTable, "comments")
+	CreateTable(db, messagesTable, "messages")
 
 }
 
