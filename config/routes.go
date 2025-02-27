@@ -6,6 +6,7 @@ import (
 )
 
 func InitializeRoutes(mux *http.ServeMux) {
+	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web/"))))
 	mux.HandleFunc("/", handlers.HomeHandler)
 	mux.HandleFunc("POST /register", handlers.RegisterHandler)
 	mux.HandleFunc("POST /login", handlers.LoginHandler)
