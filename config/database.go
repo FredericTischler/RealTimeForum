@@ -25,11 +25,11 @@ func DefineTables(db *sql.DB) {
 			"user_name" VARCHAR(255) NOT NULL UNIQUE,
 			"email" VARCHAR(255) NOT NULL UNIQUE,
 			"password" VARCHAR(72) NOT NULL,
-			"first_name" VARCHAR(255) NOT NUL,
-			"last_name" VARCHAR(255) NOT NUL,
+			"first_name" VARCHAR(255) NOT NULL,
+			"last_name" VARCHAR(255) NOT NULL,
 			"age" INTEGER NOT NULL,
 			"gender" VARCHAR(10),
-			"created_at" DATETIME NOT NUL
+			"created_at" DATETIME NOT NULL
 		);`
 
 	CreateTable(db, usersTable, "users")
