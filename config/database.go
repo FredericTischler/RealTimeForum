@@ -67,11 +67,21 @@ func DefineTables(db *sql.DB) {
 			FOREIGN KEY(receiver_id) REFERENCES users(uuid)
 	)`
 
+	sessionsTable := `CREATE TABLE IF NOT EXISTS sessions(
+		"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		"uuid" VARCHAR(36) NOT NULL UNIQUE,
+		"user_id" VARCHAR(36) NOT NULL UNIQUE,
+		"token" VARCHAR(36) NOT NULL UNIQUE,
+		"created_at" DATETIME NOT NULL,
+		"expires_at" DATETIME,
+		FOREIGN KEY(user_id) REFERENCES users(uuid)
+	)`
+
 	CreateTable(db, usersTable, "users")
 	CreateTable(db, postsTable, "posts")
 	CreateTable(db, commentsTable, "comments")
 	CreateTable(db, messagesTable, "messages")
-
+	CreateTable(db, sessionsTable, "sessions")
 }
 
 func CreateTable(db *sql.DB, createTableSQL string, tableName string) { //create one table already defined
