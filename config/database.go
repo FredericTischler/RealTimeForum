@@ -41,7 +41,7 @@ func DefineTables(db *sql.DB) {
 			"created_at" DATETIME NOT NULL,
 			"update_at" DATETIME,
 			"user_id" VARCHAR(36) NOT NULL UNIQUE,
-			FOREIGN KEY(user_id) REFERENCES users(uuid)
+			FOREIGN KEY(user_id) REFERENCES users(uuid) ON DELETE CASCADE
 		);`
 
 	commentsTable := `CREATE TABLE IF NOT EXISTS comments (
@@ -51,7 +51,7 @@ func DefineTables(db *sql.DB) {
 			"created_at" DATETIME NOT NULL,
 			"user_id" VARCHAR(36) NOT NULL UNIQUE,
 			"post_id" VARCHAR(36) NOT NULL UNIQUE,
-			FOREIGN KEY(user_id) REFERENCES users(uuid),
+			FOREIGN KEY(user_id) REFERENCES users(uuid) ON DELETE CASCADE,
 			FOREIGN KEY(post_id) REFERENCES posts(uuid) ON DELETE CASCADE
 
 		);`
@@ -63,8 +63,8 @@ func DefineTables(db *sql.DB) {
 			"receiver_id" VARCHAR(36) NOT NULL UNIQUE,
 			"content" TEXT NOT NULL,
 			"created_at" DATETIME NOT NULL,
-			FOREIGN KEY(sender_id) REFERENCES users(uuid),
-			FOREIGN KEY(receiver_id) REFERENCES users(uuid)
+			FOREIGN KEY(sender_id) REFERENCES users(uuid) ON DELETE CASCADE,
+			FOREIGN KEY(receiver_id) REFERENCES users(uuid) ON DELETE CASCADE
 	)`
 
 	sessionsTable := `CREATE TABLE IF NOT EXISTS sessions(
@@ -74,7 +74,7 @@ func DefineTables(db *sql.DB) {
 		"token" VARCHAR(36) NOT NULL UNIQUE,
 		"created_at" DATETIME NOT NULL,
 		"expires_at" DATETIME,
-		FOREIGN KEY(user_id) REFERENCES users(uuid)
+		FOREIGN KEY(user_id) REFERENCES users(uuid) ON DELETE CASCADE
 	)`
 
 	CreateTable(db, usersTable, "users")
@@ -84,7 +84,7 @@ func DefineTables(db *sql.DB) {
 	CreateTable(db, sessionsTable, "sessions")
 }
 
-func CreateTable(db *sql.DB, createTableSQL string, tableName string) { //create one table already defined
+func CreateTable(db *sql.DB, createTableSQL string, tableName string) {
 	_, err := db.Exec(createTableSQL)
 	if err != nil {
 		log.Fatalf("Creation table Failed %s : %v", tableName, err)
