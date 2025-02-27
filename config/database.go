@@ -8,8 +8,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func BDD() {
-	db, err := sql.Open("sqlite3", "furom.db")
+func CreateDataBase() {
+	db, err := sql.Open("sqlite3", "forum.db")
 	if err != nil {
 		log.Fatal(err)
 	}
