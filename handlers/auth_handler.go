@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"forum/models"
 	"forum/services"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -55,6 +57,20 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Failed to register user: %v", err), http.StatusInternalServerError)
 		return
 	}
+
+	user := &models.User{
+		UserId:    userUUID,
+		Username:  userName,
+		Email:     email,
+		Password:  password,
+		Firstname: firstName,
+		Lastname:  lastName,
+		Age:       age,
+		Gender:    gender,
+		CreatedAt: time.Now(),
+	}
+
+	fmt.Println(user)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

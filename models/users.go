@@ -1,20 +1,21 @@
 package models
 
 import (
-	"github.com/gofrs/uuid"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 type User struct {
-	userId    uuid.UUID
-	username  string
-	email     string
-	password  string
-	firstname string
-	lastname  string
-	age       int
-	gender    string
-	createdAt time.Time
+	UserId    uuid.UUID
+	Username  string
+	Email     string
+	Password  string
+	Firstname string
+	Lastname  string
+	Age       int
+	Gender    string
+	CreatedAt time.Time
 }
 
 type RegisterResponse struct {

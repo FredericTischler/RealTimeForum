@@ -21,7 +21,38 @@ header {
     z-index: 1000; 
 }
 button {
+    margin-bottom: 20px;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
 }
+
+.containerA {
+    display: flex; /* Active Flexbox */
+    height: 100vh; /* Toute la hauteur de la page */
+  }
+  
+  main {
+    flex: 1; /* Le main prend tout l'espace restant */
+    background: whitesmoke; /* Juste pour voir */
+  }
+  
+
+
+aside {
+    width: 15%;
+    padding-left: 0.5rem;
+    margin-left: 0.5rem;
+    float: right;
+    box-shadow: inset 5px 0 5px -5px whitesmoke;
+    font-style: italic;
+    color: whitesmoke;
+  }
+  
+  aside > p {
+    margin: 0.5rem;
+  }
+  
+  li {
+    list-style-type: none;
+  }
