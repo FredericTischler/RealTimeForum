@@ -72,14 +72,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 		return
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse form")
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse multipart form")
 		return
 	}
 
 	// Ensure the field sent corresponds to "identifier"
 	identifier := r.FormValue("identifier")
+	fmt.Println("Identifiant : " + identifier)
 	password := r.FormValue("password")
 
 	userId, token, err := authService.Login(identifier, password)

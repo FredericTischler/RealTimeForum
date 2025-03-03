@@ -6,23 +6,25 @@
     <link href="web/static/style.css" rel="stylesheet">
     <link href="web/static/register_form.css" rel="stylesheet">
     <link href="web/static/login_form.css" rel="stylesheet">
-
-
-    
     <title>Simple HTML Page</title>
 </head>
 <body>
 <header>
     <h1>Welcome to My Website</h1>
-    <button id="loginView">Login</button>
-    <button id="registerView">Register</button>
+    <div id="login-register-container">
+        <button id="loginView">Login</button>
+        <button id="registerView">Register</button>
+    </div>
+    <!-- Conteneur dédié aux boutons affichés après authentification -->
+    <div id="authContainer"></div>
 
+    <!-- Conteneurs pour afficher les formulaires en modal -->
     <div class="registerForm" id="register"></div>
     <div class="loginForm" id="login"></div>
 
     <div class="containerA">
         <main>
-          <!-- Contenu principal -->
+            <!-- Contenu principal -->
         </main>
         <aside>
             <ul>
@@ -32,12 +34,9 @@
                 <li>quatre</li>
             </ul>
         </aside>
-      </div>
-      
-    
+    </div>
 </header>
 <script src="web/views/register_form.js"></script>
 <script src="web/views/login_form.js"></script>
-
 </body>
 </html>
