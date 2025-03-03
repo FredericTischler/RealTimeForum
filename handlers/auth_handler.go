@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"forum/models"
 	"forum/services"
@@ -13,13 +14,13 @@ import (
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, "Invalid request method")
 		return
 	}
 
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse form")
 		return
 	}
 
@@ -33,28 +34,33 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	age, err := strconv.Atoi(ageStr)
 	if err != nil {
-		http.Error(w, "Invalid age", http.StatusBadRequest)
+		ErrorHandler(w, r, http.StatusBadRequest, "Invalid age")
 		return
 	}
 
 	userUUID, err := uuid.NewV4()
 	if err != nil {
-		http.Error(w, "Failed to generate UUID", http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError, "Failed to generate UUID")
 		return
 	}
 
 	db, err := services.ConnectDB()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to connect to database: %v", err), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to connect to database: %v", err))
 		return
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			// TODO LOG BDD ERRORS
+		}
+	}(db)
 
 	userService := services.UserMethod{DB: db}
 
 	_, err = userService.InsertInUser(userName, email, password, firstName, lastName, gender, age, userUUID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to register user: %v", err), http.StatusInternalServerError)
+		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to register user: %v", err))
 		return
 	}
 
@@ -76,9 +82,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-
+	// Implement login logic here
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-
+	// Implement logout logic here
 }
