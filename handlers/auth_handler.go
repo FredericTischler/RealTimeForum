@@ -68,23 +68,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, userService *servic
 
 func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.AuthService) {
 	if r.Method != http.MethodPost {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"message": "Invalid request method",
-			"status":  http.StatusMethodNotAllowed,
-		})
+		ErrorHandler(w, r, http.StatusMethodNotAllowed, "Invalid request method")
 		return
 	}
 
 	err := r.ParseForm()
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"message": "Unable to parse form",
-			"status":  http.StatusBadRequest,
-		})
+		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse form")
 		return
 	}
 
@@ -95,12 +85,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 	userId, token, err := authService.Login(identifier, password)
 
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"message": "Invalid identifier or password",
-			"status":  http.StatusUnauthorized,
-		})
+		ErrorHandler(w, r, http.StatusUnauthorized, "Invalid identifier or password")
 		return
 	}
 
@@ -115,12 +100,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"message": err.Error(),
-			"status":  http.StatusInternalServerError,
-		})
+		ErrorHandler(w, r, http.StatusInternalServerError, err.Error())
 	}
 }
 
