@@ -1,6 +1,7 @@
 package models
 
 type ResponseBody struct {
-	status  int
-	message string
+	Status  int
+	Message string
+	Success bool
 }

@@ -1,1 +1,23 @@
 package services
+
+import (
+	"forum/models"
+	"forum/repositories"
+	"github.com/gofrs/uuid"
+)
+
+type UserService struct {
+	UserRepo *repositories.UserRepository
+}
+
+func (us *UserService) InsertUser(userName, email, password, firstName, lastName, gender string, age int, userUUID uuid.UUID) (int64, error) {
+	return us.UserRepo.InsertUser(userName, email, password, firstName, lastName, gender, age, userUUID)
+}
+
+func (us *UserService) GetUserByEmail(email string) (*models.User, error) {
+	return us.UserRepo.GetUserByEmail(email)
+}
+
+func (us *UserService) GetUserByUsername(username string) (*models.User, error) {
+	return us.UserRepo.GetUserByUsername(username)
+}

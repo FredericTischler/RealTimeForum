@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"database/sql"
+	"encoding/json"
 	"fmt"
 	"forum/models"
 	"forum/services"
@@ -12,7 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func RegisterHandler(w http.ResponseWriter, r *http.Request, userService *services.UserService) {
 	if r.Method != http.MethodPost {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "Invalid request method")
 		return
@@ -44,21 +44,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := services.ConnectDB()
-	if err != nil {
-		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to connect to database: %v", err))
-		return
-	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			// TODO LOG BDD ERRORS
-		}
-	}(db)
-
-	userService := services.UserMethod{DB: db}
-
-	_, err = userService.InsertInUser(userName, email, password, firstName, lastName, gender, age, userUUID)
+	_, err = userService.InsertUser(userName, email, password, firstName, lastName, gender, age, userUUID)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to register user: %v", err))
 		return
@@ -77,12 +63,65 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(user)
-
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	// Implement login logic here
+func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.AuthService) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "Invalid request method",
+			"status":  http.StatusMethodNotAllowed,
+		})
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "Unable to parse form",
+			"status":  http.StatusBadRequest,
+		})
+		return
+	}
+
+	// Ensure the field sent corresponds to "identifier"
+	identifier := r.FormValue("identifier")
+	password := r.FormValue("password")
+
+	userId, token, err := authService.Login(identifier, password)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "Invalid identifier or password",
+			"status":  http.StatusUnauthorized,
+		})
+		return
+	}
+
+	response := &models.LoginResponse{
+		Response: &models.ResponseBody{
+			Message: "Login successful",
+			Status:  http.StatusOK,
+		},
+		UserId: userId,
+		Token:  token,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": err.Error(),
+			"status":  http.StatusInternalServerError,
+		})
+	}
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {

@@ -19,14 +19,14 @@ type User struct {
 }
 
 type RegisterResponse struct {
-	response *ResponseBody
-	userId   uuid.UUID
+	Response *ResponseBody
+	UserId   uuid.UUID
 }
 
 type LoginResponse struct {
-	response *ResponseBody
-	userId   uuid.UUID
-	token    string
+	Response *ResponseBody
+	UserId   uuid.UUID
+	Token    string
 }
 
 type GetUsersResponse struct {
