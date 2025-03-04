@@ -2,22 +2,34 @@ package config
 
 import (
 	"forum/handlers"
+	"forum/services"
 	"net/http"
 )
 
-func InitializeRoutes(mux *http.ServeMux) {
+func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService) {
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web/"))))
 	mux.HandleFunc("/", handlers.HomeHandler)
-	mux.HandleFunc("POST /register", handlers.RegisterHandler)
-	mux.HandleFunc("POST /login", handlers.LoginHandler)
-	mux.HandleFunc("POST /logout", handlers.LogoutHandler)
-	mux.HandleFunc("POST /posts", handlers.PostsHandler)
-	mux.HandleFunc("GET /posts", handlers.GetPostsHandler)
-	mux.HandleFunc("GET /posts/{id}", handlers.GetPostsByIdHandler)
-	mux.HandleFunc("POST /posts/comment/{id}", handlers.PostCommentHandler)
-	mux.HandleFunc("GET /posts/comments/{postid}", handlers.GetCommentsHandler)
-	mux.HandleFunc("POST /message", handlers.MessageHandler)
-	mux.HandleFunc("GET /message/{id}", handlers.GetMessageHandler)
-	mux.HandleFunc("GET /users", handlers.GetUsersHandler)
-	mux.HandleFunc("GET /users/{id}", handlers.GetUsersHandler)
+
+	// Utiliser des closures pour capturer les services et les passer aux gestionnaires de routes
+	mux.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RegisterHandler(w, r, userService)
+	})
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		handlers.LoginHandler(w, r, authService)
+	})
+	mux.HandleFunc("/logout", handlers.LogoutHandler)
+	mux.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.PostsHandler(w, r)
+		} else if r.Method == http.MethodGet {
+			handlers.GetPostsHandler(w, r)
+		}
+	})
+	mux.HandleFunc("/posts/{id}", handlers.GetPostsByIdHandler)
+	mux.HandleFunc("/posts/comment/{id}", handlers.PostCommentHandler)
+	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
+	mux.HandleFunc("/message", handlers.MessageHandler)
+	mux.HandleFunc("/message/{id}", handlers.GetMessageHandler)
+	mux.HandleFunc("/users", handlers.GetUsersHandler)
+	mux.HandleFunc("/users/{id}", handlers.GetUsersHandler)
 }
