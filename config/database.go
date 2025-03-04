@@ -40,7 +40,7 @@ func DefineTables(db *sql.DB) {
 			"category" VARCHAR(30) NOT NULL,
 			"created_at" DATETIME NOT NULL,
 			"update_at" DATETIME,
-			"user_id" VARCHAR(36) NOT NULL UNIQUE,
+			"user_id" VARCHAR(36) NOT NULL,
 			FOREIGN KEY(user_id) REFERENCES users(uuid) ON DELETE CASCADE
 		);`
 
