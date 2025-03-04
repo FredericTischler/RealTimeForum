@@ -23,5 +23,6 @@ func (ps *PostsService) GetPostById(postUUID uuid.UUID) (*models.Post, error) {
 
 // GetAllPosts retourne la liste de tous les posts.
 func (ps *PostsService) GetAllPosts() ([]*models.Post, error) {
+
 	return ps.PostsRepo.GetAllPosts()
 }

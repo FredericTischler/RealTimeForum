@@ -1,4 +1,5 @@
 import { PostForm } from "./post_form.js";
+import { displayPosts } from './post_display.js';
 
 // Fonction qui interroge l'endpoint d'authentification
 async function checkAuthStatus() {
@@ -81,4 +82,8 @@ function updateUIAfterLogout() {
 // Au chargement du DOM, on vérifie l'état d'authentification
 document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
+    displayPosts();
 });
+
+
+

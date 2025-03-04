@@ -11,7 +11,6 @@ import (
 )
 
 func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService, sessionService *services.SessionService) {
-	fmt.Println("post handler")
 	if r.Method != http.MethodPost {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "Invalid request method")
 		return
@@ -81,8 +80,19 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 	// Redirection vers la page principale après la création du post
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// GetPostsHandler gère les requêtes GET pour récupérer tous les posts.
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService) {
-	// Implement the logic to handle GET requests for posts
+	posts, err := postService.GetAllPosts()
+	if err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve posts: %v", err))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(posts); err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError, err.Error())
+	}
 }
 
 func GetPostsByIdHandler(w http.ResponseWriter, r *http.Request) {

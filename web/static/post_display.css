@@ -1,0 +1,23 @@
+/* posts.css */
+.post {
+    background-color: #fff;  /* fond blanc */
+    color: #000;             /* texte en noir */
+    padding: 1rem;           /* espacement interne */
+    margin-bottom: 1rem;     /* espacement entre les posts */
+    border: 1px solid #ccc;  /* bordure légère */
+    border-radius: 4px;      /* coins arrondis */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ombre discrète */
+}
+
+.post h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+.post p {
+    margin: 0.5rem 0;
+}
+
+.post small {
+    color: #555; /* texte plus discret pour la date */
+}

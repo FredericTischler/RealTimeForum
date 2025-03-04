@@ -7,6 +7,7 @@
     <link href="web/static/register_form.css" rel="stylesheet">
     <link href="web/static/login_form.css" rel="stylesheet">
     <link href="web/static/post_form.css" rel="stylesheet">
+    <link href="web/static/post_display.css" rel="stylesheet">
     <title>Simple HTML Page</title>
 </head>
 <body>
@@ -27,7 +28,8 @@
 
     <div class="containerA">
         <main>
-            <!-- Contenu principal -->
+            <!-- Conteneur pour afficher les posts -->
+            <div id="postsContainer"></div>
         </main>
         <aside>
             <ul>
@@ -44,5 +46,6 @@
 <script src="web/views/login_form.js" type="module"></script>
 <script src="web/views/post_form.js" type="module"></script>
 <script src="web/views/main.js" type="module"></script>
+<script src="web/views/post_display.js" type="module"></script>
 </body>
 </html>
