@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService) {
+func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService, postsService *services.PostsService) {
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web/"))))
 	mux.HandleFunc("/", handlers.HomeHandler)
 
@@ -20,9 +20,9 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 	mux.HandleFunc("/logout", handlers.LogoutHandler)
 	mux.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			handlers.PostsHandler(w, r)
+			handlers.PostsHandler(w, r, postsService)
 		} else if r.Method == http.MethodGet {
-			handlers.GetPostsHandler(w, r)
+			handlers.GetPostsHandler(w, r, postsService)
 		}
 	})
 	mux.HandleFunc("/posts/{id}", handlers.GetPostsByIdHandler)
