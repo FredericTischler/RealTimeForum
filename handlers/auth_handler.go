@@ -77,25 +77,36 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 		return
 	}
 
-	// Ensure the field sent corresponds to "identifier"
+	// Récupération de l'identifiant et du mot de passe depuis le formulaire
 	identifier := r.FormValue("identifier")
 	fmt.Println("Identifiant : " + identifier)
 	password := r.FormValue("password")
 
+	// Authentification : récupération de l'UUID de l'utilisateur et du token de session
 	userId, token, err := authService.Login(identifier, password)
-
 	if err != nil {
 		ErrorHandler(w, r, http.StatusUnauthorized, "Invalid identifier or password")
 		return
 	}
 
+	// Création du cookie contenant le token de session
+	cookie := &http.Cookie{
+		Name:     "session_token", // nom du cookie
+		Value:    token,           // le token retourné par le service d'authentification
+		Path:     "/",             // le cookie sera accessible sur l'ensemble du domaine
+		HttpOnly: true,            // améliore la sécurité en interdisant l'accès via JavaScript
+		// Secure: true,         // à activer en production sous HTTPS
+		// Optionnel : définir une date d'expiration si nécessaire
+	}
+	http.SetCookie(w, cookie)
+
+	// Création de la réponse JSON
 	response := &models.LoginResponse{
 		Response: &models.ResponseBody{
 			Message: "Login successful",
 			Status:  http.StatusOK,
 		},
 		UserId: userId,
-		Token:  token,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

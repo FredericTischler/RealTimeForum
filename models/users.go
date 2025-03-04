@@ -26,7 +26,6 @@ type RegisterResponse struct {
 type LoginResponse struct {
 	Response *ResponseBody
 	UserId   uuid.UUID
-	Token    string
 }
 
 type GetUsersResponse struct {

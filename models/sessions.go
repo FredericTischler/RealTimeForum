@@ -6,9 +6,9 @@ import (
 )
 
 type Session struct {
-	sessionId uuid.UUID
-	userId    uuid.UUID
-	token     string
-	createdAt time.Time
-	expireAt  time.Time
+	SessionId uuid.UUID
+	UserId    uuid.UUID
+	Token     string
+	CreatedAt time.Time
+	ExpireAt  time.Time
 }
