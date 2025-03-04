@@ -114,6 +114,38 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 	}
 }
 
+func AuthStatusHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService) {
+	// Récupérer le cookie "session_token"
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Not authenticated", http.StatusUnauthorized)
+		return
+	}
+
+	// Récupérer la session associée au token
+	session, err := sessionService.GetSessionByToken(cookie.Value)
+	if err != nil {
+		http.Error(w, "Not authenticated", http.StatusUnauthorized)
+		return
+	}
+
+	// Vérifier l'expiration de la session si un expires_at est défini
+	if session.ExpireAt.Before(time.Now()) {
+		http.Error(w, "Session expired", http.StatusUnauthorized)
+		return
+	}
+
+	// Si la session est valide, renvoyer un JSON indiquant que l'utilisateur est authentifié
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(map[string]interface{}{
+		"authenticated": true,
+		"userId":        session.UserId, // Assurez-vous que le champ s'appelle bien UserID dans votre modèle de Session
+	})
+	if err != nil {
+		return
+	}
+}
+
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Implement logout logic here
 }
