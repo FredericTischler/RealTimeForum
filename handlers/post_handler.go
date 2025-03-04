@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/models"
 	"forum/services"
@@ -10,15 +11,16 @@ import (
 )
 
 func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService, sessionService *services.SessionService) {
-	// Vérifier que la méthode est POST
+	fmt.Println("post handler")
 	if r.Method != http.MethodPost {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "Invalid request method")
 		return
 	}
 
-	// Parse du formulaire
-	if err := r.ParseForm(); err != nil {
-		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse form")
+	// Décodage du JSON depuis r.Body
+	var payload models.PostPayload
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		ErrorHandler(w, r, http.StatusBadRequest, "Unable to decode JSON payload")
 		return
 	}
 
@@ -46,13 +48,8 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 	// L'UUID de l'utilisateur est récupéré depuis la session
 	userID := session.UserId
 
-	// Récupérer les valeurs du formulaire pour le post
-	title := r.FormValue("title")
-	content := r.FormValue("content")
-	category := r.FormValue("category")
-
 	// Vérifier que les champs obligatoires sont présents
-	if title == "" || content == "" {
+	if payload.Title == "" || payload.Content == "" {
 		ErrorHandler(w, r, http.StatusBadRequest, "Missing required fields: title and content")
 		return
 	}
@@ -65,26 +62,25 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 	}
 
 	// Insertion du post via le service
-	_, err = postService.InsertPost(userID, title, content, category, postUUID)
+	_, err = postService.InsertPost(userID, payload.Title, payload.Content, payload.Category, postUUID)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to insert post: %v", err))
 		return
 	}
 
-	// Optionnel : vous pouvez créer un objet post pour un log ou traitement ultérieur
+	// Optionnel : création de l'objet post pour journalisation
 	_ = &models.Post{
 		PostId:    postUUID,
 		UserId:    userID,
-		Title:     title,
-		Content:   content,
-		Category:  category,
+		Title:     payload.Title,
+		Content:   payload.Content,
+		Category:  payload.Category,
 		CreatedAt: time.Now(),
 	}
 
 	// Redirection vers la page principale après la création du post
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
-
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService) {
 	// Implement the logic to handle GET requests for posts
 }
