@@ -17,17 +17,16 @@ type PostsRepository struct {
 func (pr *PostsRepository) InsertPost(userId uuid.UUID, title, content, category string, postUUID uuid.UUID) (int64, error) {
 	createdAt := time.Now()
 
-	query := `INSERT INTO posts (uuid, user_id, title, content, category, created_at) VALUES (?, ?, ?, ?, ?, ?)`
-	result, err := pr.DB.Exec(query, postUUID.String(), userId.String(), title, content, category, createdAt)
+	query := `INSERT INTO posts (uuid, title, content, category, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?)`
+	result, err := pr.DB.Exec(query, postUUID.String(), title, content, category, createdAt, userId.String())
+
 	if err != nil {
 		return 0, fmt.Errorf("failed to insert post: %v", err)
 	}
-
 	id, err := result.LastInsertId()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get last insert ID: %v", err)
 	}
-
 	return id, nil
 }
 
