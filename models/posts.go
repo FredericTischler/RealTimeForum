@@ -14,6 +14,12 @@ type Post struct {
 	CreatedAt time.Time
 }
 
+type PostPayload struct {
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	Category string `json:"category"`
+}
+
 type PostResponse struct {
 	response *ResponseBody
 	post     *Post
