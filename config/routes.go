@@ -25,6 +25,9 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 			handlers.GetPostsHandler(w, r, postsService)
 		}
 	})
+	mux.HandleFunc("/auth/status", func(w http.ResponseWriter, r *http.Request) {
+		handlers.AuthStatusHandler(w, r, sessionService)
+	})
 	mux.HandleFunc("/posts/{id}", handlers.GetPostsByIdHandler)
 	mux.HandleFunc("/posts/comment/{id}", handlers.PostCommentHandler)
 	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
