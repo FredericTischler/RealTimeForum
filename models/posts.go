@@ -6,12 +6,12 @@ import (
 )
 
 type Post struct {
-	postId    uuid.UUID
-	userId    uuid.UUID
-	title     string
-	content   string
-	category  string
-	createdAt time.Time
+	PostId    uuid.UUID
+	UserId    uuid.UUID
+	Title     string
+	Content   string
+	Category  string
+	CreatedAt time.Time
 }
 
 type PostResponse struct {
