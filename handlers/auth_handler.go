@@ -79,7 +79,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 
 	// Récupération de l'identifiant et du mot de passe depuis le formulaire
 	identifier := r.FormValue("identifier")
-	fmt.Println("Identifiant : " + identifier)
 	password := r.FormValue("password")
 
 	// Authentification : récupération de l'UUID de l'utilisateur et du token de session

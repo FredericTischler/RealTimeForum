@@ -58,7 +58,6 @@ func (ur *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 }
 
 func (ur *UserRepository) GetUserByUsername(username string) (*models.User, error) {
-	fmt.Println(username)
 	var user models.User
 	query := `SELECT uuid, user_name, email, password, first_name, last_name, age, gender, created_at FROM users WHERE user_name = ?`
 	err := ur.DB.QueryRow(query, username).Scan(

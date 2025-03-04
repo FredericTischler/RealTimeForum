@@ -6,6 +6,7 @@
     <link href="web/static/style.css" rel="stylesheet">
     <link href="web/static/register_form.css" rel="stylesheet">
     <link href="web/static/login_form.css" rel="stylesheet">
+    <link href="web/static/post_form.css" rel="stylesheet">
     <title>Simple HTML Page</title>
 </head>
 <body>
@@ -21,7 +22,7 @@
     <!-- Conteneurs pour afficher les formulaires en modal -->
     <div class="registerForm" id="register"></div>
     <div class="loginForm" id="login"></div>
-    <div class="post-form-container"></div>
+    <div class="post-form-container" id="post-form-container"></div>
 
     <div class="containerA">
         <main>
@@ -38,6 +39,7 @@
     </div>
 </header>
 <script src="web/views/register_form.js"></script>
-<script src="web/views/login_form.js"></script>
+<script src="web/views/login_form.js" type="module"></script>
+<script src="web/views/post_form.js" type="module"></script>
 </body>
 </html>

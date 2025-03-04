@@ -1,3 +1,5 @@
+import { PostFrom } from './post_form.js'
+
 document.getElementById("loginView").addEventListener("click", () => {
     const viewForm = document.getElementById("login");
     viewForm.style.display = "block";
@@ -28,27 +30,17 @@ document.getElementById("loginView").addEventListener("click", () => {
             if (!response.ok) {
                 const errorText = await response.text();
                 alert("Erreur: " + errorText);
-                return;
             }
-            const data = await response.json();
-            // Stocker les informations de connexion
-            localStorage.setItem("token", data.Token);
-            localStorage.setItem("userId", data.UserId);
-            // Mettre à jour l'interface
-            updateUIAfterLogin();
         } catch (err) {
             console.error("Erreur lors du login", err);
             alert("Le login a échoué, veuillez réessayer.");
         }
+        updateUIAfterLogin();
     });
 });
 
-// Vérifier l'état connecté au chargement de la page
-document.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("token")) {
-        updateUIAfterLogin();
-    }
-});
+// Vous pouvez supprimer le code de vérification de connexion via localStorage,
+// car la session est gérée via le cookie côté serveur.
 
 function updateUIAfterLogin() {
     // Retirer complètement les boutons de connexion et d'inscription s'ils existent
@@ -66,32 +58,28 @@ function updateUIAfterLogin() {
     logoutButton.id = "logoutBtn";
     logoutButton.textContent = "Logout";
     logoutButton.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
+        // Logique de déconnexion, par exemple appeler l'API logout
+        // Puis recharger la page
         location.reload();
     });
 
-    // Créer le bouton "Créer un post"
+    // Créer le bouton "Créer un post" sans ajouter d'écouteur ici
     const createPostButton = document.createElement("button");
     createPostButton.id = "createPostBtn";
     createPostButton.textContent = "Créer un post";
-    createPostButton.addEventListener("click", () => {
-        // Implémentez ici la logique pour afficher l'interface de création de post
-        alert("Interface de création de post à implémenter.");
-    });
+    PostFrom(createPostButton)
+    // Aucune fonction n'est attachée ici ; le script post_form.js se chargera d'ajouter son propre écouteur
 
-    // Pour éviter d'empiler plusieurs boutons si updateUIAfterLogin est appelée plusieurs fois,
-    // on vérifie si un conteneur dédié existe déjà sinon on le crée.
+    // Créer ou récupérer le conteneur d'authentification dans le header
     let authContainer = document.getElementById("authContainer");
     if (!authContainer) {
         authContainer = document.createElement("div");
         authContainer.id = "authContainer";
-        // Ajoutons ce conteneur à l'intérieur du header pour garder la cohérence visuelle
         const header = document.querySelector("header");
         header.appendChild(authContainer);
     }
 
-    // On vide le conteneur pour s'assurer qu'il n'y a pas de doublons
+    // Vider le conteneur pour éviter les doublons
     authContainer.innerHTML = "";
     authContainer.appendChild(logoutButton);
     authContainer.appendChild(createPostButton);
