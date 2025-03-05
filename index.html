@@ -8,12 +8,14 @@
     <link href="web/static/auth_form.css" rel="stylesheet">
     <link href="web/static/post_form.css" rel="stylesheet">
     <link href="web/static/post_display.css" rel="stylesheet">
-    <title>Forum</title>
+    <link href="web/static/error_modal.css" rel="stylesheet">
+
+    <title>Urban Vibe</title>
 </head>
 <body>
 <header>
     <div class="header-container">
-        <h1 id="forumTitle">Forum</h1>
+        <h1 id="forumTitle">Urban Vibe</h1>
         <!-- Si l'utilisateur est connecté, authContainer affichera les options Logout et "Créer un post" -->
         <div id="authContainer"></div>
     </div>
@@ -55,10 +57,13 @@
 <!-- Conteneur pour le formulaire de création/modification de post -->
 <div class="modal post-form-container" id="post-form-container"></div>
 
+<div id="errorModalContainer"></div>
+
 <!-- Scripts en mode module -->
 <script src="web/views/auth_form.js" type="module"></script>
 <script src="web/views/post_form.js" type="module"></script>
 <script src="web/views/main.js" type="module"></script>
 <script src="web/views/post_display.js" type="module"></script>
+<script src="web/views/error_modal.js" type="module"></script>
 </body>
 </html>
