@@ -31,6 +31,9 @@ function renderPosts(posts) {
         return;
     }
 
+    // Trier les posts par date décroissante (les plus récents en premier)
+    posts.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
+
     // Pour chaque post, créer un élément et l'ajouter au conteneur
     posts.forEach(post => {
         const postElement = document.createElement("div");
