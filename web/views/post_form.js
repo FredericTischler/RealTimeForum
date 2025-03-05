@@ -1,3 +1,7 @@
+// web/views/post_form.js
+
+import { displayErrorModal } from './error_modal.js';
+
 export function PostForm(createPostButton) {
     let postFormVisible = false;
 
@@ -26,9 +30,8 @@ export function PostForm(createPostButton) {
         </div>
       `;
 
-            // Ajout d'un écouteur sur le conteneur pour fermer le modal si on clique à l'extérieur de la boîte du formulaire
+            // Fermer le modal si l'utilisateur clique à l'extérieur de la boîte du formulaire
             postFormContainer.addEventListener("click", function(e) {
-                // Si le clic est sur le conteneur lui-même (et non sur un descendant)
                 if (e.target === postFormContainer) {
                     postFormContainer.style.display = "none";
                     postFormVisible = false;
@@ -47,23 +50,19 @@ export function PostForm(createPostButton) {
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        credentials: "include", // Assure l'envoi des cookies
+                        credentials: "include",
                         body: JSON.stringify(postData)
                     });
 
                     if (!response.ok) {
                         const errorText = await response.text();
-                        alert(`Erreur: ${errorText}`);
+                        displayErrorModal(`Erreur: ${errorText}`);
                         return;
                     }
-
-                    // Ici, on peut mettre à jour dynamiquement l'interface ou rediriger en JavaScript
-                    alert("Post créé avec succès!");
-                    // Par exemple, rediriger via JS vers la page d'accueil :
                     window.location.href = "/";
                 } catch (error) {
                     console.error("Erreur lors de la soumission du formulaire:", error);
-                    alert("Une erreur est survenue lors de la soumission du formulaire.");
+                    displayErrorModal("Une erreur est survenue lors de la soumission du formulaire.");
                 }
             });
         }
