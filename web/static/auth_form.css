@@ -1,0 +1,97 @@
+/* ==========================================
+   Styles Spécifiques aux Formulaires d'Authentification
+   (Appliqués uniquement dans #authSection)
+=========================================== */
+#authSection {
+    margin-top: 5%; /* Pour laisser la place au header fixe */
+    width: 100%;
+    min-height: calc(100vh - 80px); /* Occuper l'espace restant sous le header */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+#authSection .container {
+    max-width: 400px;
+    width: 100%;
+    background-color: var(--background-color);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 0 auto; /* Centrage horizontal forcé */
+}
+
+#authSection .container h2 {
+    font-size: 1.75rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+#authSection .container form {
+    display: flex;
+    flex-direction: column;
+}
+
+#authSection .container label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+#authSection .container input,
+#authSection .container select,
+#authSection .container textarea {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#authSection .container input:focus,
+#authSection .container select:focus,
+#authSection .container textarea:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(98, 0, 238, 0.2);
+}
+
+#authSection .container button {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    margin-top: 0.5rem;
+}
+
+#authSection .container button:hover,
+#authSection .container button:focus {
+    background-color: var(--accent-color);
+}
+
+#authSection .container a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    text-align: center;
+    display: block;
+    margin-top: 1rem;
+}
+
+#authSection .container a:hover,
+#authSection .container a:focus {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   Responsive pour les Formulaires
+=========================================== */
+@media (max-width: 480px) {
+    #authSection {
+        padding: 1rem;
+    }
+    #authSection .container {
+        padding: 1.5rem;
+    }
+    #authSection .container h2 {
+        font-size: 1.5rem;
+    }
+}

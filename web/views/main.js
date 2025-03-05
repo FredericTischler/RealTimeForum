@@ -1,10 +1,10 @@
 import { PostForm } from "./post_form.js";
 import { displayPosts } from './post_display.js';
+import { displayLoginForm } from './auth_form.js'; // Import ajouté
 
 // Fonction qui interroge l'endpoint d'authentification
 async function checkAuthStatus() {
     try {
-        // Le cookie HTTPOnly "session_token" est automatiquement envoyé
         const response = await fetch('/auth/status', {
             credentials: 'include'
         });
@@ -24,22 +24,28 @@ async function checkAuthStatus() {
     }
 }
 
-// Mise à jour de l'interface pour un utilisateur connecté
 function updateUIAfterLogin() {
-    // Supprimer les boutons "Login" et "Register"
+    // Vérifier et nettoyer le conteneur "login-register-container" s'il existe
     const loginRegisterContainer = document.getElementById("login-register-container");
-    loginRegisterContainer.innerHTML = "";
+    if (loginRegisterContainer) {
+        loginRegisterContainer.innerHTML = "";
+    }
 
-    // Vider les conteneurs de formulaires
-    document.getElementById("login").innerHTML = "";
-    document.getElementById("register").innerHTML = "";
+    // Nettoyer les formulaires d'authentification
+    const loginDiv = document.getElementById("login");
+    if (loginDiv) {
+        loginDiv.innerHTML = "";
+    }
+    const registerDiv = document.getElementById("register");
+    if (registerDiv) {
+        registerDiv.innerHTML = "";
+    }
 
-    // Créer le bouton Logout
+    // Mise à jour de l'interface pour un utilisateur connecté : injection des boutons Logout et "Créer un post"
     const logoutButton = document.createElement("button");
     logoutButton.id = "logoutBtn";
     logoutButton.textContent = "Logout";
     logoutButton.addEventListener("click", async () => {
-        // Appeler l'API logout pour détruire la session côté serveur
         try {
             const response = await fetch('/logout', { method: 'POST', credentials: 'include' });
             if (!response.ok) {
@@ -52,38 +58,45 @@ function updateUIAfterLogin() {
         location.reload();
     });
 
-    // Créer le bouton "Créer un post"
     const createPostButton = document.createElement("button");
     createPostButton.id = "createPostBtn";
     createPostButton.textContent = "Créer un post";
-    PostForm(createPostButton)
+    PostForm(createPostButton);
 
-    // Créer ou récupérer le conteneur d'authentification dans le header
+    // Utiliser le conteneur authentification dans le header
     let authContainer = document.getElementById("authContainer");
-    authContainer.innerHTML = "";
-    authContainer.appendChild(logoutButton);
-    authContainer.appendChild(createPostButton);
-}
+    if (authContainer) {
+        authContainer.innerHTML = "";
+        authContainer.appendChild(logoutButton);
+        authContainer.appendChild(createPostButton);
+    }
 
-// Mise à jour de l'interface pour un utilisateur non authentifié
-function updateUIAfterLogout() {
-    // Assurez-vous que le conteneur login-register contient bien les boutons de connexion
-    const loginRegisterContainer = document.getElementById("login-register-container");
-    // Si les boutons ne sont pas présents, vous pouvez les recréer (selon votre logique)
-    if (!document.getElementById("loginView") && !document.getElementById("registerView")) {
-        loginRegisterContainer.innerHTML = `
-      <button id="loginView">Login</button>
-      <button id="registerView">Register</button>
-    `;
-        // Vous pouvez ré-attacher les écouteurs si nécessaire ou recharger la page.
+    // Masquer la section d'authentification puisque l'utilisateur est connecté
+    const authSection = document.getElementById("authSection");
+    if (authSection) {
+        authSection.style.display = "none";
+    }
+
+    // Afficher le contenu principal (posts, etc.)
+    const contentContainer = document.querySelector(".content-container");
+    if (contentContainer) {
+        contentContainer.style.display = "block";
     }
 }
 
-// Au chargement du DOM, on vérifie l'état d'authentification
+
+function updateUIAfterLogout() {
+    const contentContainer = document.querySelector(".content-container");
+    if(contentContainer) {
+        contentContainer.style.display = "none";
+    }
+    const authSection = document.getElementById("authSection");
+    if(authSection) {
+        authSection.style.display = "block";
+    }
+    displayLoginForm(); // Affiche le formulaire de connexion
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
-    displayPosts();
 });
-
-
-

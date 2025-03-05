@@ -1,49 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Liens vers les feuilles de style -->
     <link href="web/static/style.css" rel="stylesheet">
-    <link href="web/static/register_form.css" rel="stylesheet">
-    <link href="web/static/login_form.css" rel="stylesheet">
+    <link href="web/static/auth_form.css" rel="stylesheet">
     <link href="web/static/post_form.css" rel="stylesheet">
     <link href="web/static/post_display.css" rel="stylesheet">
-    <title>Simple HTML Page</title>
+    <title>Forum</title>
 </head>
 <body>
 <header>
-    <h1>Welcome to My Website</h1>
-    <!-- Boutons de login / register affichés par défaut -->
-    <div id="login-register-container">
-        <button id="loginView">Login</button>
-        <button id="registerView">Register</button>
-    </div>
-    <!-- Conteneur dédié aux boutons affichés après authentification -->
-    <div id="authContainer"></div>
-
-    <!-- Conteneurs pour afficher les formulaires en modal -->
-    <div class="registerForm" id="register"></div>
-    <div class="loginForm" id="login"></div>
-    <div class="post-form-container" id="post-form-container"></div>
-
-    <div class="containerA">
-        <main>
-            <!-- Conteneur pour afficher les posts -->
-            <div id="postsContainer"></div>
-        </main>
-        <aside>
-            <ul>
-                <li>un</li>
-                <li>deux</li>
-                <li>trois</li>
-                <li>quatre</li>
-            </ul>
-        </aside>
+    <div class="header-container">
+        <h1 id="forumTitle">Forum</h1>
+        <!-- Si l'utilisateur est connecté, authContainer affichera les options Logout et "Créer un post" -->
+        <div id="authContainer"></div>
     </div>
 </header>
+
+<!-- Section d'authentification pour les utilisateurs non connectés -->
+<section id="authSection">
+    <!-- Formulaire de sign in affiché directement -->
+    <div id="login"></div>
+    <!-- Conteneur pour le formulaire de sign up, caché par défaut -->
+    <div id="register" style="display: none;"></div>
+</section>
+
+<!-- Contenu principal accessible une fois connecté -->
+<div class="content-container">
+    <main>
+        <!-- Zone réservée aux filtres pour les posts -->
+        <section id="postFilters" class="filters">
+            <!-- Filtres pour les posts (logique à implémenter ultérieurement) -->
+        </section>
+        <!-- Affichage des posts -->
+        <section id="postsSection">
+            <div id="postsContainer"></div>
+        </section>
+    </main>
+
+    <!-- Sidebar pour la liste des utilisateurs connectés -->
+    <aside id="usersSidebar">
+        <section id="userFilters" class="filters">
+            <!-- Filtres pour les utilisateurs -->
+        </section>
+        <section id="usersList">
+            <ul>
+                <li>Utilisateur 1</li>
+                <li>Utilisateur 2</li>
+                <li>Utilisateur 3</li>
+                <li>Utilisateur 4</li>
+            </ul>
+        </section>
+    </aside>
+</div>
+
+<!-- Conteneur pour le formulaire de création/modification de post -->
+<div class="modal post-form-container" id="post-form-container"></div>
+
 <!-- Scripts en mode module -->
-<script src="web/views/register_form.js" type="module"></script>
-<script src="web/views/login_form.js" type="module"></script>
+<script src="web/views/auth_form.js" type="module"></script>
 <script src="web/views/post_form.js" type="module"></script>
 <script src="web/views/main.js" type="module"></script>
 <script src="web/views/post_display.js" type="module"></script>
