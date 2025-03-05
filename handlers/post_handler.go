@@ -7,6 +7,7 @@ import (
 	"forum/services"
 	"github.com/gofrs/uuid"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -83,7 +84,24 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 
 // GetPostsHandler gère les requêtes GET pour récupérer tous les posts.
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService) {
-	posts, err := postService.GetAllPosts()
+	// Récupérer les paramètres de pagination avec des valeurs par défaut
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+	limit := 10 // Valeur par défaut
+	offset := 0 // Valeur par défaut
+
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil {
+			limit = l
+		}
+	}
+	if offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil {
+			offset = o
+		}
+	}
+	fmt.Println(limit, offset)
+	posts, err := postService.GetPosts(limit, offset)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve posts: %v", err))
 		return

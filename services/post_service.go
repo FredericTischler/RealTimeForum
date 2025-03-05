@@ -21,8 +21,7 @@ func (ps *PostsService) GetPostById(postUUID uuid.UUID) (*models.Post, error) {
 	return ps.PostsRepo.GetPostById(postUUID)
 }
 
-// GetAllPosts retourne la liste de tous les posts.
-func (ps *PostsService) GetAllPosts() ([]*models.Post, error) {
-
-	return ps.PostsRepo.GetAllPosts()
+// GetPosts retourne la liste de tous les posts.
+func (ps *PostsService) GetPosts(limit, offset int) ([]*models.Post, error) {
+	return ps.PostsRepo.GetPosts(limit, offset)
 }

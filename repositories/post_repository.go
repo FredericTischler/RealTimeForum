@@ -43,9 +43,12 @@ func (pr *PostsRepository) GetPostById(postUUID uuid.UUID) (*models.Post, error)
 }
 
 // GetAllPosts récupère l'ensemble des posts.
-func (pr *PostsRepository) GetAllPosts() ([]*models.Post, error) {
-	query := `SELECT uuid, user_id, title, content, category, created_at FROM posts`
-	rows, err := pr.DB.Query(query)
+func (pr *PostsRepository) GetPosts(limit, offset int) ([]*models.Post, error) {
+	query := `SELECT uuid, user_id, title, content, category, created_at 
+              FROM posts 
+              ORDER BY created_at DESC 
+              LIMIT ? OFFSET ?`
+	rows, err := pr.DB.Query(query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -59,5 +62,6 @@ func (pr *PostsRepository) GetAllPosts() ([]*models.Post, error) {
 		}
 		posts = append(posts, &post)
 	}
+	fmt.Println(posts)
 	return posts, nil
 }
