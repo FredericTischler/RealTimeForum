@@ -33,15 +33,14 @@ function renderPosts(posts) {
 
     // Pour chaque post, créer un élément et l'ajouter au conteneur
     posts.forEach(post => {
-        console.log(post)
         const postElement = document.createElement("div");
         postElement.classList.add("post");
 
         postElement.innerHTML = `
       <h3>${post.Title}</h3>
+      <p><em>Category : ${post.Category}</em></p>
       <p>${post.Content}</p>
-      <p><em>Catégorie : ${post.Category}</em></p>
-      <p><small>Créé le ${new Date(post.CreatedAt).toLocaleString()}</small></p>
+      <p><small>Created on ${new Date(post.CreatedAt).toLocaleString()}</small></p>
     `;
         postsContainer.appendChild(postElement);
     });

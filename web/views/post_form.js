@@ -5,7 +5,7 @@ export function PostForm(createPostButton) {
         const postFormContainer = document.getElementById("post-form-container");
         // Bascule l'affichage du formulaire
         postFormVisible = !postFormVisible;
-        postFormContainer.style.display = postFormVisible ? "block" : "none";
+        postFormContainer.style.display = postFormVisible ? "flex" : "none";
 
         if (postFormVisible) {
             postFormContainer.innerHTML = `
@@ -15,16 +15,25 @@ export function PostForm(createPostButton) {
             <label for="title">Titre</label>
             <input type="text" name="title" id="title" required>
             
-            <label for="content">Contenu</label>
-            <textarea name="content" id="content" required></textarea>
-            
             <label for="category">Catégorie</label>
             <input type="text" name="category" id="category">
             
+            <label for="content">Contenu</label>
+            <textarea name="content" id="content" required></textarea>
+           
             <button type="submit">Submit</button>
           </form>
         </div>
       `;
+
+            // Ajout d'un écouteur sur le conteneur pour fermer le modal si on clique à l'extérieur de la boîte du formulaire
+            postFormContainer.addEventListener("click", function(e) {
+                // Si le clic est sur le conteneur lui-même (et non sur un descendant)
+                if (e.target === postFormContainer) {
+                    postFormContainer.style.display = "none";
+                    postFormVisible = false;
+                }
+            });
 
             const postForm = document.getElementById("postForm");
             postForm.addEventListener("submit", async (event) => {

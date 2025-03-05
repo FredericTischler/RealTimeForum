@@ -60,7 +60,8 @@ function updateUIAfterLogin() {
 
     const createPostButton = document.createElement("button");
     createPostButton.id = "createPostBtn";
-    createPostButton.textContent = "Créer un post";
+    createPostButton.textContent = "+";
+    document.body.appendChild(createPostButton);
     PostForm(createPostButton);
 
     // Utiliser le conteneur authentification dans le header
@@ -68,7 +69,6 @@ function updateUIAfterLogin() {
     if (authContainer) {
         authContainer.innerHTML = "";
         authContainer.appendChild(logoutButton);
-        authContainer.appendChild(createPostButton);
     }
 
     // Masquer la section d'authentification puisque l'utilisateur est connecté
@@ -82,6 +82,7 @@ function updateUIAfterLogin() {
     if (contentContainer) {
         contentContainer.style.display = "block";
     }
+    displayPosts()
 }
 
 

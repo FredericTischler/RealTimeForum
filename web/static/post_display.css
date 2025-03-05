@@ -1,23 +1,51 @@
-/* posts.css */
+:root {
+    --post-bg-color: var(--background-color); /* Utilise le fond sombre défini */
+    --post-border-color: var(--border-color);
+    --post-text-color: var(--text-color);
+    --post-heading-color: var(--primary-color);
+    --post-shadow: 0 2px 8px var(--shadow-color);
+}
+
 .post {
-    background-color: #fff;  /* fond blanc */
-    color: #000;             /* texte en noir */
-    padding: 1rem;           /* espacement interne */
-    margin-bottom: 1rem;     /* espacement entre les posts */
-    border: 1px solid #ccc;  /* bordure légère */
-    border-radius: 4px;      /* coins arrondis */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ombre discrète */
+    background-color: var(--post-bg-color);
+    color: var(--post-text-color);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--post-border-color);
+    border-radius: 8px;
+    box-shadow: var(--post-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .post h3 {
     margin-top: 0;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+    color: var(--post-heading-color);
 }
 
 .post p {
-    margin: 0.5rem 0;
+    margin: 1rem 0;
+    line-height: 1.5;
 }
 
 .post small {
-    color: #555; /* texte plus discret pour la date */
+    color: #999999;
+}
+
+@media (max-width: 600px) {
+    .post {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .post h3 {
+        font-size: 1.5rem;
+    }
+    .post p {
+        font-size: 0.9rem;
+    }
 }
