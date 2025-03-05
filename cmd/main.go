@@ -12,7 +12,7 @@ func main() {
 	mux := http.NewServeMux()
 	config.CreateDataBase()
 	// Initialiser la base de données
-	db, err := services.ConnectDB()
+	db, err := config.ConnectDB()
 	if err != nil {
 		fmt.Printf("Failed to connect to database: %v\n", err)
 		return
@@ -28,7 +28,7 @@ func main() {
 		UserService:    userService,
 		SessionService: sessionService,
 	}
-	
+
 	postRepo := &repositories.PostsRepository{DB: db}
 	postService := &services.PostsService{PostsRepo: postRepo}
 

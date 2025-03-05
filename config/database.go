@@ -8,6 +8,21 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func ConnectDB() (*sql.DB, error) {
+	database, err := sql.Open("sqlite3", "./forum.db")
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %v", err)
+	}
+
+	err = database.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("failed to ping database: %v", err)
+	}
+
+	log.Println("Successfully connected to SQLite database")
+	return database, nil
+}
+
 func CreateDataBase() {
 	db, err := sql.Open("sqlite3", "forum.db")
 	if err != nil {
@@ -89,5 +104,5 @@ func CreateTable(db *sql.DB, createTableSQL string, tableName string) {
 	if err != nil {
 		log.Fatalf("Creation table Failed %s : %v", tableName, err)
 	}
-	fmt.Printf("Table %s allready exist.\n", tableName)
+	fmt.Printf("Table %s already exist.\n", tableName)
 }
