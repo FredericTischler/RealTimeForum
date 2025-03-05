@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
 
 :root {
     --primary-color: #BB86FC;       /* Couleur principale pour les accents (violet lumineux) */
@@ -27,7 +28,6 @@ header {
     width: 100%;
     background-color: var(--secondary-bg);
     color: var(--text-color);
-    padding: 1rem 1rem;
     position: fixed;
     top: 0;
     left: 0;
@@ -42,24 +42,50 @@ header {
     margin: 0;
 }
 
+#forumTitle {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3em;
+    color: var(--primary-color);
+    margin-left: 0.3em;
+    margin-top: 0.4em;
+}
+
 #authContainer {
     margin-left: auto;
     margin-right: 2rem;
 }
 
-button {
+.authButton {
     cursor: pointer;
     border: none;
     padding: 0.75rem 1rem;
     border-radius: 4px;
     font-size: 1rem;
     transition: background-color 0.3s ease;
+    background-color: var(--primary-color);
 }
 
-button:hover,
+.authButton:hover,
 button:focus {
     background-color: var(--accent-color);
     outline: none;
+}
+
+/* Assurez-vous que le bouton s'aligne bien dans le header */
+#logoutBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent; /* ou utilisez var(--primary-color) si vous préférez un fond */
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+/* Ajuster la taille du SVG dans le bouton */
+#logoutBtn svg {
+    width: 36px;
+    height: 36px;
 }
 
 .content-container {

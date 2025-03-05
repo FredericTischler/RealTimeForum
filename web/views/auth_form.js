@@ -15,7 +15,7 @@ export function displayLoginForm() {
         <label for="password">Password</label>
         <input type="password" name="password" id="password" required>
         
-        <button type="submit">Sign in</button>
+        <button class="authButton" type="submit">Sign in</button>
       </form>
       <p>You don't have any account ? <a href="#" id="switchToRegister">Sign up</a></p>
     </div>
@@ -85,7 +85,7 @@ export function displayRegisterForm() {
           <option value="Other">Other</option>
         </select>
   
-        <button type="submit">Sign up</button>
+        <button class="authButton" type="submit">Sign up</button>
       </form>
       <p>You already have an account ? <a href="#" id="switchToLogin">Sign in</a></p>
     </div>
