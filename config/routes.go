@@ -17,7 +17,10 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		handlers.LoginHandler(w, r, authService)
 	})
-	mux.HandleFunc("/logout", handlers.LogoutHandler)
+	mux.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		handlers.LogoutHandler(w, r, sessionService)
+	})
+
 	mux.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			handlers.PostsHandler(w, r, postsService, sessionService)

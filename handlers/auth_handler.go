@@ -146,6 +146,34 @@ func AuthStatusHandler(w http.ResponseWriter, r *http.Request, sessionService *s
 	}
 }
 
-func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// Implement logout logic here
+// LogoutHandler supprime la session associée au cookie "session_token" et efface le cookie.
+func LogoutHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService) {
+	// Récupérer le cookie "session_token"
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		ErrorHandler(w, r, http.StatusBadRequest, "Missing session token")
+		return
+	}
+	token := cookie.Value
+
+	// Supprimer la session de la base de données via le service
+	err = sessionService.DeleteSessionByToken(token)
+	if err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError, "Failed to delete session")
+		return
+	}
+
+	// Supprimer le cookie en le remplaçant par un cookie expiré
+	expiredCookie := &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, expiredCookie)
+
+	// Rediriger l'utilisateur vers la page principale
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
