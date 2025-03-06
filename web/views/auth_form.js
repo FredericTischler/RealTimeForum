@@ -91,6 +91,31 @@ export function displayRegisterForm() {
     </div>
   `;
 
+  const registerForm = document.getElementById("registerForm");
+    registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const registerFormData = new FormData(registerForm);
+        try {
+            const registerResponse = await fetch("register", {
+                method: "POST",
+                body: registerFormData,
+                credentials: "include"
+            });
+            console.log(registerResponse)
+            if (!registerResponse.ok) {
+                const errorText = await response.text();
+                displayErrorModal("Erreur: " + errorText);
+                return;
+            }
+            location.reload();
+        } catch (err) {
+            console.error("Erreur lors du register", err);
+            displayErrorModal("Le register a échoué, veuillez réessayer.");
+        }
+    });
+
+  
+
     document.getElementById("switchToLogin").addEventListener("click", (e) => {
         e.preventDefault();
         registerContainer.style.display = "none";

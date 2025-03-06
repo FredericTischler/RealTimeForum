@@ -18,9 +18,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, userService *servic
 		return
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse form")
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		ErrorHandler(w, r, http.StatusBadRequest, "Unable to parse multipart form")
 		return
 	}
 
@@ -50,7 +49,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, userService *servic
 		return
 	}
 
-	user := &models.User{
+	_ = &models.User{
 		UserId:    userUUID,
 		Username:  userName,
 		Email:     email,
@@ -62,7 +61,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, userService *servic
 		CreatedAt: time.Now(),
 	}
 
-	fmt.Println(user)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
