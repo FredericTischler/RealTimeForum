@@ -71,23 +71,22 @@ func PostCommentHandler(w http.ResponseWriter, r *http.Request, commentService *
 	json.NewEncoder(w).Encode(map[string]string{"message": "Comment added successfully"})
 }
 
-// GetCommentsByPostHandler récupère tous les commentaires d'un post
-// func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *services.CommentsService) {
-// 	postID := r.URL.Query().Get("post_id")
-// 	if postID == "" {
-// 		ErrorHandler(w, r, http.StatusBadRequest, "Missing post_id parameter")
-// 		return
-// 	}
+func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *services.CommentsService) {
+	postID := r.URL.Query().Get("post_id")
+	if postID == "" {
+		ErrorHandler(w, r, http.StatusBadRequest, "Missing post_id parameter")
+		return
+	}
 
-// 	comments, err := commentsRepositories.GetCommentsByPost(postID)
-// 	if err != nil {
-// 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve comments: %v", err))
-// 		return
-// 	}
+	comments, err := commentService.GetCommentsByPost(postID)
+	if err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve comments: %v", err))
+		return
+	}
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(comments)
-// }
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(comments)
+}
 
 func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 

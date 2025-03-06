@@ -1,6 +1,7 @@
 package services
 
 import (
+	"forum/models"
 	"forum/repositories"
 
 	"github.com/gofrs/uuid"
@@ -15,10 +16,10 @@ func (ps *CommentsService) InsertComment(userID uuid.UUID, postID, content strin
 	return ps.CommentsRepo.InsertComment(userID, postID, content, commentUUID)
 }
 
-// // GetPostById retourne un post en fonction de son UUID.
-// func (ps *PostsService) GetCommentsByPost(postUUID uuid.UUID) (*models.Post, error) {
-// 	return ps.PostsRepo.GetCommentsByPost(postUUID)
-// }
+// GetCommentByPost retourne un comment en fonction de son UUID du post.
+func (ps *CommentsService) GetCommentsByPost(postUUID string) ([]models.Comment, error) {
+	return ps.CommentsRepo.GetCommentsByPost(postUUID)
+}
 
 // // GetAllPosts retourne la liste de tous les posts.
 // func (ps *PostsService) GetAllPosts() ([]*models.Post, error) {
