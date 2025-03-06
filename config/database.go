@@ -64,8 +64,8 @@ func DefineTables(db *sql.DB) {
 			"uuid" VARCHAR(36) NOT NULL UNIQUE,
 			"content" TEXT NOT NULL,
 			"created_at" DATETIME NOT NULL,
-			"user_id" VARCHAR(36) NOT NULL UNIQUE,
-			"post_id" VARCHAR(36) NOT NULL UNIQUE,
+			"user_id" VARCHAR(36) NOT NULL,
+			"post_id" VARCHAR(36) NOT NULL,
 			FOREIGN KEY(user_id) REFERENCES users(uuid) ON DELETE CASCADE,
 			FOREIGN KEY(post_id) REFERENCES posts(uuid) ON DELETE CASCADE
 

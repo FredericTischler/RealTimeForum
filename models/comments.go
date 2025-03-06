@@ -1,16 +1,22 @@
 package models
 
 import (
-	"github.com/gofrs/uuid"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 type Comment struct {
-	commentId uuid.UUID
-	postId    uuid.UUID
-	userId    uuid.UUID
-	content   string
-	createdAt time.Time
+	CommentId uuid.UUID
+	PostId    uuid.UUID
+	UserId    uuid.UUID
+	Content   string
+	CreatedAt time.Time
+}
+
+type CommentPayload struct {
+	PostId  string `json:"post_id"`
+	Content string `json:"content"`
 }
 
 type GetCommentsResponse struct {

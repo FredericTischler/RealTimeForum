@@ -32,8 +32,11 @@ func main() {
 	postRepo := &repositories.PostsRepository{DB: db}
 	postService := &services.PostsService{PostsRepo: postRepo}
 
+	commentRepo := &repositories.CommentsRepositories{DB: db}
+	commentService := &services.CommentsService{CommentsRepo: commentRepo}
+
 	// Initialiser les routes
-	config.InitializeRoutes(mux, userService, authService, postService, sessionService)
+	config.InitializeRoutes(mux, userService, authService, postService, commentService, sessionService)
 
 	fmt.Println("Starting server...")
 	config.StartServer(mux)
