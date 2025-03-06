@@ -35,10 +35,9 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 	mux.HandleFunc("/posts/comment/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			handlers.PostCommentHandler(w, r, commentService, sessionService)
+		} else if r.Method == http.MethodGet {
+			handlers.GetCommentHandler(w, r, commentService)
 		}
-		// } else if r.Method == http.MethodGet {
-		// 	handlers.GetPostsHandler(w, r, postsService)
-		// }
 	})
 	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
 	mux.HandleFunc("/message", handlers.MessageHandler)
