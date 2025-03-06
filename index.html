@@ -9,54 +9,88 @@
     <link href="web/static/post_form.css" rel="stylesheet">
     <link href="web/static/post_display.css" rel="stylesheet">
     <link href="web/static/error_modal.css" rel="stylesheet">
-
     <title>Urban Vibe</title>
 </head>
 <body>
 <header>
     <div class="header-container">
         <h1 id="forumTitle">Urban Vibe</h1>
-        <!-- Si l'utilisateur est connecté, authContainer affichera les options Logout et "Créer un post" -->
         <div id="authContainer"></div>
     </div>
 </header>
 
-<!-- Section d'authentification pour les utilisateurs non connectés -->
+<!-- Section d'authentification pour les non connectés -->
 <section id="authSection">
-    <!-- Formulaire de sign in affiché directement -->
     <div id="login"></div>
-    <!-- Conteneur pour le formulaire de sign up, caché par défaut -->
     <div id="register" style="display: none;"></div>
 </section>
 
 <!-- Contenu principal accessible une fois connecté -->
 <div class="content-container">
-    <main>
-        <!-- Zone réservée aux filtres pour les posts -->
-        <section id="postFilters" class="filters">
-            <!-- Filtres pour les posts (logique à implémenter ultérieurement) -->
-        </section>
-        <!-- Affichage des posts -->
-        <section id="postsSection">
-            <div id="postsContainer"></div>
-        </section>
-    </main>
-
-    <!-- Sidebar pour la liste des utilisateurs connectés -->
-    <aside id="usersSidebar">
-        <section id="userFilters" class="filters">
-            <!-- Filtres pour les utilisateurs -->
-        </section>
-        <section id="usersList">
-
-        </section>
+    <!-- Colonne 1 : Filtres des posts -->
+    <aside id="postFilters" class="filters">
+        <h2>Filtres Posts</h2>
+        <form id="filtersForm">
+            <!-- Contenu du formulaire de filtres -->
+            <div class="filter-group">
+                <label for="filterCategory">Catégorie :</label>
+                <select id="filterCategory" name="category">
+                    <option value="">--Toutes--</option>
+                    <option value="News">News</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Culture">Culture</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterKeyword">Mot-clé :</label>
+                <input type="text" id="filterKeyword" name="keyword" placeholder="Rechercher...">
+            </div>
+            <button type="submit">Filtrer</button>
+        </form>
     </aside>
 
+    <!-- Colonne centrale : Posts -->
+    <section id="postsSection">
+        <div id="postsContainer"></div>
+    </section>
+
+    <!-- Colonne 3 : Sidebar utilisateurs -->
+    <aside id="usersSidebar">
+        <section id="userFilters" class="filters">
+            <form id="userFiltersForm">
+                <div class="filter-group">
+                    <label for="userGender">Gender :</label>
+                    <select id="userGender" name="gender">
+                        <option value="">Tous</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="userName">Nom :</label>
+                    <input type="text" id="userName" name="username" placeholder="Rechercher par nom">
+                </div>
+                <button type="submit">Filtrer</button>
+            </form>
+        </section>
+        <section id="usersList">
+            <h2>Liste des utilisateurs</h2>
+            <ul>
+                <li><strong>Utilisateur1</strong> - Admin</li>
+                <li><strong>Utilisateur2</strong> - Membre</li>
+                <li><strong>Utilisateur3</strong> - Modérateur</li>
+                <li><strong>Utilisateur4</strong> - Membre</li>
+                <li><strong>Utilisateur5</strong> - Membre</li>
+            </ul>
+        </section>
+    </aside>
 </div>
+
+
 
 <!-- Conteneur pour le formulaire de création/modification de post -->
 <div class="modal post-form-container" id="post-form-container"></div>
-
 <div id="errorModalContainer"></div>
 
 <!-- Scripts en mode module -->
