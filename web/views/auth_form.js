@@ -103,7 +103,7 @@ export function displayRegisterForm() {
             });
             console.log(registerResponse)
             if (!registerResponse.ok) {
-                const errorText = await response.text();
+                const errorText = await registerResponse.text();
                 displayErrorModal("Erreur: " + errorText);
                 return;
             }
