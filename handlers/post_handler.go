@@ -84,7 +84,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 
 // GetPostsHandler gère les requêtes GET pour récupérer tous les posts.
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService) {
-	// Récupérer les paramètres de pagination avec des valeurs par défaut
+	// Paramètres de pagination
 	limitStr := r.URL.Query().Get("limit")
 	offsetStr := r.URL.Query().Get("offset")
 	limit := 10 // Valeur par défaut
@@ -100,8 +100,14 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *servic
 			offset = o
 		}
 	}
-	fmt.Println(limit, offset)
-	posts, err := postService.GetPosts(limit, offset)
+
+	// Récupérer les filtres
+	category := r.URL.Query().Get("category")
+	keyword := r.URL.Query().Get("keyword")
+	author := r.URL.Query().Get("author")
+
+	// Appeler le service avec ces paramètres
+	posts, err := postService.GetPosts(limit, offset, category, keyword, author)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve posts: %v", err))
 		return

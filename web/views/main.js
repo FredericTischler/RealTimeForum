@@ -1,6 +1,7 @@
 import { PostForm } from "./post_form.js";
 import { displayPosts } from './post_display.js';
-import { displayLoginForm } from './auth_form.js'; // Import ajouté
+import { displayLoginForm } from './auth_form.js';
+import { createFilterForm} from "./post_display.js";
 
 // Fonction qui interroge l'endpoint d'authentification
 async function checkAuthStatus() {
@@ -87,6 +88,7 @@ function updateUIAfterLogin() {
     if (contentContainer) {
         contentContainer.style.display = "block";
     }
+    createFilterForm()
     displayPosts()
 }
 

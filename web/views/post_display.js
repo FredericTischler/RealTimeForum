@@ -2,7 +2,7 @@
 
 import { displayErrorModal } from './error_modal.js';
 
-let limit = 3;
+let limit = 2;
 let offset = 0;
 let isLoading = false;
 let allPostsLoaded = false;
@@ -98,3 +98,92 @@ function handleScroll() {
         loadMorePosts();
     }
 }
+
+// Fonction qui crée dynamiquement le formulaire de filtres
+export function createFilterForm() {
+    const postFilters = document.getElementById("postFilters");
+    if (!postFilters) return;
+    postFilters.innerHTML = `
+    <form id="filtersForm">
+      <div class="filter-group">
+        <label for="filterCategory">Catégorie :</label>
+        <select id="filterCategory" name="category">
+          <option value="">--Toutes--</option>
+          <option value="News">News</option>
+          <option value="Sport">Sport</option>
+          <option value="Culture">Culture</option>
+          <!-- Ajoutez d'autres catégories selon vos besoins -->
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterKeyword">Mot-clé :</label>
+        <input type="text" id="filterKeyword" name="keyword" placeholder="Rechercher...">
+      </div>
+      <div class="filter-group">
+        <label for="filterAuthor">Auteur :</label>
+        <input type="text" id="filterAuthor" name="author" placeholder="Nom d'utilisateur">
+      </div>
+      <button type="submit">Filtrer</button>
+    </form>
+  `;
+
+    // Attacher l'écouteur d'événement pour gérer la soumission des filtres
+    const filtersForm = document.getElementById("filtersForm");
+    filtersForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const category = document.getElementById("filterCategory").value;
+        const keyword = document.getElementById("filterKeyword").value;
+        const author = document.getElementById("filterAuthor").value;
+
+        // Ici, vous pouvez rafraîchir l'affichage des posts en fonction des filtres sélectionnés
+        // Par exemple, réinitialiser la pagination et appeler une fonction reloadPosts() :
+        offset = 0;
+        allPostsLoaded = false;
+        const postsContainer = document.getElementById("postsContainer");
+        if (postsContainer) postsContainer.innerHTML = "";
+
+        // On construit l'URL avec les nouveaux paramètres de filtre
+        const queryParams = new URLSearchParams({
+            limit: limit,
+            offset: offset,
+            category: category,
+            keyword: keyword,
+            author: author
+        });
+
+        fetch(`/posts?${queryParams.toString()}`, {
+            method: "GET",
+            credentials: "include"
+        })
+            .then(response => response.json())
+            .then(posts => {
+                if (posts.length === 0) {
+                    renderNoPosts();
+                    allPostsLoaded = true;
+                } else {
+                    appendPosts(posts);
+                    offset += limit;
+                }
+            })
+            .catch(err => {
+                console.error("Erreur lors du filtrage des posts", err);
+            });
+    });
+}
+
+// Par exemple, dans updateUIAfterLogin(), après avoir affiché les boutons, appelez createFilterForm():
+function updateUIAfterLogin() {
+    // ... votre code existant pour le logout, etc.
+    // Afficher le contenu principal (posts, etc.)
+    const contentContainer = document.querySelector(".content-container");
+    if (contentContainer) {
+        contentContainer.style.display = "block";
+    }
+
+    // Créer dynamiquement les filtres
+    createFilterForm();
+
+    // Lancer l'affichage initial des posts
+    displayPosts();
+}
+
