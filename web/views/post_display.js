@@ -32,16 +32,13 @@ async function loadMorePosts() {
             credentials: "include"
         });
         if (!response.ok) {
-            if (response.status === 404) {
-                allPostsLoaded = true;
-                return;
-            }
             const errorText = await response.text();
             throw new Error(errorText);
         }
         const posts = await response.json();
-        if (posts.length === 0) {
+        if (posts === null) {
             allPostsLoaded = true;
+            window.removeEventListener("scroll", handleScroll);
             if (offset === 0) {
                 renderNoPosts();
             }
@@ -66,6 +63,7 @@ export function updateFilters(category, keyword, author = "") {
     // Réinitialisation de la pagination et de l'affichage
     offset = 0;
     allPostsLoaded = false;
+    window.addEventListener("scroll", handleScroll);
     const postsContainer = document.getElementById("postsContainer");
     if (postsContainer) postsContainer.innerHTML = "";
     // Charger les posts avec les nouveaux filtres
