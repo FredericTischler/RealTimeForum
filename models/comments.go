@@ -23,3 +23,8 @@ type GetCommentsResponse struct {
 	response *ResponseBody
 	comments []*Comment
 }
+
+type CommentUsername struct {
+	Comment  Comment
+	Username string
+}
