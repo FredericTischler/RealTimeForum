@@ -3,6 +3,7 @@ package services
 import (
 	"forum/models"
 	"forum/repositories"
+
 	"github.com/gofrs/uuid"
 )
 
@@ -20,4 +21,8 @@ func (us *UserService) GetUserByEmail(email string) (*models.User, error) {
 
 func (us *UserService) GetUserByUsername(username string) (*models.User, error) {
 	return us.UserRepo.GetUserByUsername(username)
+}
+
+func (us *UserService) GetUserByUUID(userID string) (string, error) {
+	return us.UserRepo.GetUserByUUID(userID)
 }

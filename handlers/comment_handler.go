@@ -82,7 +82,7 @@ func PostCommentHandler(w http.ResponseWriter, r *http.Request, commentService *
 	json.NewEncoder(w).Encode(map[string]string{"message": "Comment added successfully"})
 }
 
-func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *services.CommentsService) {
+func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *services.CommentsService, userService *services.UserService) {
 	segment := strings.Split(r.URL.Path, "/")
 	postID := segment[len(segment)-1]
 	fmt.Println(postID)
@@ -97,8 +97,21 @@ func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *s
 		return
 	}
 
+	var response []models.CommentUsername
+	for _, comment := range comments {
+		var result models.CommentUsername
+		result.Comment = comment
+		username, err := userService.GetUserByUUID(comment.UserId.String())
+		if err != nil {
+			ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve username: %v", err))
+			return
+		}
+		result.Username = username
+		response = append(response, result)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(comments)
+	json.NewEncoder(w).Encode(response)
 }
 
 func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {

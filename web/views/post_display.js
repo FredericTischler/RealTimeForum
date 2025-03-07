@@ -147,8 +147,8 @@ async function fetchComments(postId) {
                 const commentElement = document.createElement("div");
                 commentElement.classList.add("comment");
                 commentElement.innerHTML = `
-                    <p>< ${comment.Content}</p>
-                    <p><small>Posté le ${new Date(comment.CreatedAt).toLocaleString()}</small></p>
+                    <p> ${comment.Comment.Content}</p>
+                    <p>Posted By: ${comment.Username}<small>${new Date(comment.Comment.CreatedAt).toLocaleString()}</small></p>
                 `;
                 commentsContainer.appendChild(commentElement);
             });
