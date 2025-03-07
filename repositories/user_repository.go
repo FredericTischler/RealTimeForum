@@ -76,3 +76,13 @@ func (ur *UserRepository) GetUserByUsername(username string) (*models.User, erro
 	}
 	return &user, nil
 }
+
+func (ur *UserRepository) GetUserByUUID(userID string) (string, error) {
+	var user string
+	query := `SELECT user_name FROM users WHERE uuid = ?`
+	err := ur.DB.QueryRow(query, userID).Scan(&user)
+	if err != nil {
+		return "", err
+	}
+	return user, nil
+}

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService, postsService *services.PostsService, sessionService *services.SessionService) {
+func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService, postsService *services.PostsService, commentService *services.CommentsService, sessionService *services.SessionService) {
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web/"))))
 	mux.HandleFunc("/", handlers.HomeHandler)
 
@@ -32,7 +32,13 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 		handlers.AuthStatusHandler(w, r, sessionService)
 	})
 	mux.HandleFunc("/posts/{id}", handlers.GetPostsByIdHandler)
-	mux.HandleFunc("/posts/comment/{id}", handlers.PostCommentHandler)
+	mux.HandleFunc("/posts/comment/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.PostCommentHandler(w, r, commentService, sessionService)
+		} else if r.Method == http.MethodGet {
+			handlers.GetCommentHandler(w, r, commentService, userService)
+		}
+	})
 	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
 	mux.HandleFunc("/message", handlers.MessageHandler)
 	mux.HandleFunc("/message/{id}", handlers.GetMessageHandler)
