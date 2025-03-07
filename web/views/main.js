@@ -1,5 +1,5 @@
 import { PostForm } from "./post_form.js";
-import { displayPosts } from "./post_display.js";
+import { displayPosts,renderPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
 
 // Fonction qui interroge l'endpoint d'authentification
@@ -45,18 +45,20 @@ function updateUIAfterLogin() {
     if (searchbarDiv) {
         searchbarDiv.innerHTML = `
       <form id="searchForm">
-        <input type="text" id="searchInput" placeholder="Rechercher..." />
-        <button type="submit">Rechercher</button>
+        <input type="text" id="searchInput" placeholder="Search..." />
+        <button type="submit">Search</button>
       </form>
     `;
-        // Optionnel : ajouter un écouteur d'événement sur le formulaire de recherche
+
         const searchForm = document.getElementById("searchForm");
         searchForm.addEventListener("submit", (e) => {
             e.preventDefault();
+            // Récupération des valeurs
             const keyword = document.getElementById("searchInput").value.trim();
-            // Ici, vous pouvez déclencher la recherche via fetch ou rediriger la page en fonction du mot-clé
-            console.log("Recherche pour :", keyword);
+            const category = document.getElementById("categoryMenu").value;
+            updateFilters(category, keyword);
         });
+
     }
 
     // Nettoyage des zones d'authentification
@@ -122,14 +124,13 @@ function updateUIAfterLogin() {
             </select>
           </div>
           <div class="filter-group">
-            <label for="userName">Nom :</label>
-            <input type="text" id="userName" name="username" placeholder="Rechercher par nom">
+            <label for="userName">Username :</label>
+            <input type="text" id="userName" name="username" placeholder="Search by username">
           </div>
-          <button type="submit">Filtrer</button>
+          <button type="submit">Filter</button>
         </form>
       </section>
       <section id="usersList">
-        <h2>Liste des utilisateurs</h2>
         <ul>
           <li><strong>Utilisateur1</strong> - Admin</li>
           <li><strong>Utilisateur2</strong> - Membre</li>

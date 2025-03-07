@@ -43,30 +43,24 @@ func (pr *PostsRepository) GetPostById(postUUID uuid.UUID) (*models.Post, error)
 }
 
 // GetAllPosts récupère l'ensemble des posts.
-func (pr *PostsRepository) GetPosts(limit, offset int, category, keyword, author string) ([]*models.Post, error) {
+func (pr *PostsRepository) GetPosts(limit, offset int, category, keyword string) ([]*models.Post, error) {
 	baseQuery := `SELECT uuid, user_id, title, content, category, created_at FROM posts WHERE 1=1`
 	args := []interface{}{}
 
-	// Filtrer par catégorie si fourni
+	// Filtrage par catégorie
 	if category != "" {
 		baseQuery += " AND category = ?"
 		args = append(args, category)
 	}
 
-	// Filtrer par mot-clé dans le titre ou le contenu
+	// Filtrage par mot-clé dans le titre ou le contenu
 	if keyword != "" {
 		baseQuery += " AND (title LIKE ? OR content LIKE ?)"
 		keywordParam := "%" + keyword + "%"
 		args = append(args, keywordParam, keywordParam)
 	}
 
-	// Filtrer par auteur (en supposant que 'author' correspond à l'identifiant de l'utilisateur)
-	if author != "" {
-		baseQuery += " AND user_id = ?"
-		args = append(args, author)
-	}
-
-	// Ajout du tri et de la pagination
+	// Tri et pagination
 	baseQuery += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
 	args = append(args, limit, offset)
 
@@ -84,5 +78,6 @@ func (pr *PostsRepository) GetPosts(limit, offset int, category, keyword, author
 		}
 		posts = append(posts, &post)
 	}
+	fmt.Println(posts)
 	return posts, nil
 }

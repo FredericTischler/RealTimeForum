@@ -2,6 +2,9 @@
 
 import { displayErrorModal } from './error_modal.js';
 
+export let currentCategory = "";
+export let currentKeyword = "";
+
 let limit = 2;
 let offset = 0;
 let isLoading = false;
@@ -13,18 +16,22 @@ export function displayPosts() {
     window.addEventListener("scroll", handleScroll);
 }
 
-// Fonction de chargement d'un lot de posts
 async function loadMorePosts() {
     if (isLoading || allPostsLoaded) return;
     isLoading = true;
     try {
-        const response = await fetch(`/posts?limit=${limit}&offset=${offset}`, {
+        // Construire la query string avec les filtres courants
+        const queryParams = new URLSearchParams({
+            limit: limit,
+            offset: offset,
+            category: currentCategory,
+            keyword: currentKeyword
+        });
+        const response = await fetch(`/posts?${queryParams.toString()}`, {
             method: "GET",
             credentials: "include"
         });
-        // Si la réponse n'est pas OK, on vérifie si c'est parce qu'il n'y a plus de posts
         if (!response.ok) {
-            // Si c'est un 404 (ou un autre code que vous utilisez pour signaler l'absence de posts), on considère que c'est la fin
             if (response.status === 404) {
                 allPostsLoaded = true;
                 return;
@@ -43,17 +50,28 @@ async function loadMorePosts() {
             offset += limit;
         }
     } catch (error) {
-        // On n'affiche l'erreur que si ce n'est pas simplement la fin des posts
         if (offset === 0) {
             displayErrorModal("Erreur lors de la récupération des posts.");
         }
     }
     isLoading = false;
-
-    // Vérifie si le contenu ne remplit pas encore la fenêtre et charge plus de posts si nécessaire
     if (!allPostsLoaded && document.body.offsetHeight < window.innerHeight) {
         loadMorePosts();
     }
+}
+
+// Toujours dans post_display.js
+
+export function updateFilters(category, keyword, author = "") {
+    currentCategory = category;
+    currentKeyword = keyword;
+    // Réinitialisation de la pagination et de l'affichage
+    offset = 0;
+    allPostsLoaded = false;
+    const postsContainer = document.getElementById("postsContainer");
+    if (postsContainer) postsContainer.innerHTML = "";
+    // Charger les posts avec les nouveaux filtres
+    loadMorePosts();
 }
 
 function renderNoPosts() {
@@ -186,4 +204,35 @@ function updateUIAfterLogin() {
     // Lancer l'affichage initial des posts
     displayPosts();
 }
+
+// Ajoutez ce code dans post_display.js, par exemple après les autres fonctions
+export function renderPosts(posts) {
+    const postsContainer = document.getElementById("postsContainer");
+    if (!postsContainer) return;
+
+    // Vider le conteneur pour un rechargement complet
+    postsContainer.innerHTML = "";
+
+    if (posts.length === 0) {
+        postsContainer.innerHTML = "<p>Aucun post à afficher.</p>";
+        return;
+    }
+
+    // Trier les posts par date décroissante
+    posts.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
+
+    // Créer et ajouter les éléments pour chaque post
+    posts.forEach(post => {
+        const postElement = document.createElement("div");
+        postElement.classList.add("post");
+        postElement.innerHTML = `
+            <h3>${post.Title}</h3>
+            <p><em>Category : ${post.Category}</em></p>
+            <p>${post.Content}</p>
+            <p><small>Created on ${new Date(post.CreatedAt).toLocaleString()}</small></p>
+        `;
+        postsContainer.appendChild(postElement);
+    });
+}
+
 
