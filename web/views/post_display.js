@@ -75,21 +75,22 @@ function displayModal(post) {
     `;
 
     // Charger les commentaires existants
-    fetchComments(post.PostId);
+    // fetchComments(post.PostId);
 
     // Ecouter l'événement du formulaire pour ajouter un commentaire
     const commentForm = document.getElementById("commentForm");
     commentForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const commentContent = commentForm.comment.value;
-
+        console.log(commentContent)
         if (commentContent.trim() === "") {
             alert("Le commentaire ne peut pas être vide !");
             return;
         }
+        
 
         try {
-            const response = await fetch(`/posts/comment?post_id=${post.PostId}`, {
+            const response = await fetch(`/posts/comment/${post.PostId}`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -101,14 +102,16 @@ function displayModal(post) {
                 })
             });
 
+            console.log(response)
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText);
             }
 
             commentForm.reset();
-            fetchComments(post.PostId); // Rafraîchir les commentaires après ajout
+            // fetchComments(post.PostId); // Rafraîchir les commentaires après ajout
         } catch (error) {
+            const errorText = await response.text();
             displayErrorModal("Erreur lors de l'ajout du commentaire.");
         }
     });
@@ -121,47 +124,47 @@ document.getElementById("closeModal").addEventListener("click", () => {
     document.getElementById("postModal").style.display = "none";
 });   
 
-async function fetchComments(postId) {
+// async function fetchComments(postId) {
     
-    try {
-        const response = await fetch(`/posts/comment?post_id=${postId}`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                PostId: postId,
-                Content: commentContent
-            })
-        });
+//     try {
+//         const response = await fetch(`/posts/comment/${postId}`, {
+//             method: "GET",
+//             credentials: "include",
+//             headers: {
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({
+//                 PostId: postId,
+//                 Content: commentContent
+//             })
+//         });
         
 
-        if (!response.ok) {
-            throw new Error("Erreur lors de la récupération des commentaires.");
-        }
+//         if (!response.ok) {
+//             throw new Error("Erreur lors de la récupération des commentaires.");
+//         }
 
-        const comments = await response.json();
-        const commentsContainer = document.getElementById("commentsContainer");
-        commentsContainer.innerHTML = "";
+//         const comments = await response.json();
+//         const commentsContainer = document.getElementById("commentsContainer");
+//         commentsContainer.innerHTML = "";
 
-        if (comments.length === 0) {
-            commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
-            return;
-        }
+//         if (comments.length === 0) {
+//             commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
+//             return;
+//         }
 
-        comments.forEach(comment => {
-            const commentElement = document.createElement("div");
-            commentElement.classList.add("comment");
-            commentElement.innerHTML = `
-                <p>${comment.Content}</p>
-                <small>${new Date(comment.CreatedAt).toLocaleString()}</small>
-            `;
-            commentsContainer.appendChild(commentElement);
-        });
-    } catch (error) {
-        console.error(error);
-    }
-}
+//         comments.forEach(comment => {
+//             const commentElement = document.createElement("div");
+//             commentElement.classList.add("comment");
+//             commentElement.innerHTML = `
+//                 <p>${comment.Content}</p>
+//                 <small>${new Date(comment.CreatedAt).toLocaleString()}</small>
+//             `;
+//             commentsContainer.appendChild(commentElement);
+//         });
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
 
 

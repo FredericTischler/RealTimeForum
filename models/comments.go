@@ -15,8 +15,8 @@ type Comment struct {
 }
 
 type CommentPayload struct {
-	PostId  string `json:"post_id"`
-	Content string `json:"content"`
+	PostId  string `json:"PostId"`
+	Content string `json:"Content"`
 }
 
 type GetCommentsResponse struct {
