@@ -56,7 +56,7 @@ function renderPosts(posts) {
    
 }
 
-function displayModal(post) {
+async function displayModal(post) {
     const modal = document.getElementById("postModal");
     const modalContent = document.getElementById("modalContent");
     const modalTitle = document.getElementById("modalTitle");
@@ -66,16 +66,17 @@ function displayModal(post) {
       <p><strong>Category:</strong> ${post.Category}</p>
       <p>${post.Content}</p>
       <p><small>Created on ${new Date(post.CreatedAt).toLocaleString()}</small></p>
+      <h4>Comments:</h4>
+      <div id="commentsContainer"></div> <!-- Section pour afficher les commentaires -->
       <form id="commentForm">
         <input type="text" name="comment" placeholder="New comment...">
         <br>
         <button class="authButton" style="margin-top: 10px;" type="submit">Add Comment</button>
       </form>
-      <div id="commentsContainer"></div>
     `;
 
     // Charger les commentaires existants
-    // fetchComments(post.PostId);
+    await fetchComments(post.PostId);
 
     // Ecouter l'événement du formulaire pour ajouter un commentaire
     const commentForm = document.getElementById("commentForm");
@@ -87,7 +88,6 @@ function displayModal(post) {
             alert("Le commentaire ne peut pas être vide !");
             return;
         }
-        
 
         try {
             const response = await fetch(`/posts/comment/${post.PostId}`, {
@@ -102,16 +102,14 @@ function displayModal(post) {
                 })
             });
 
-            console.log(response)
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText);
             }
 
             commentForm.reset();
-            // fetchComments(post.PostId); // Rafraîchir les commentaires après ajout
+            await fetchComments(post.PostId); // Rafraîchir les commentaires après ajout
         } catch (error) {
-            const errorText = await response.text();
             displayErrorModal("Erreur lors de l'ajout du commentaire.");
         }
     });
@@ -119,52 +117,49 @@ function displayModal(post) {
     modal.style.display = "block";
 }
 
+// Fonction pour récupérer et afficher les commentaires
+async function fetchComments(postId) {
+    const commentsContainer = document.getElementById("commentsContainer");
+    console.log("Fetching comments from:", `/posts/comment/${postId}`);
+
+    try {
+        const response = await fetch(`/posts/comment/${postId}`, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        console.log(response)
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
+
+        const comments = await response.json();
+        console.log("Commentaires récupérés:", comments);
+
+        commentsContainer.innerHTML = "";
+
+        if (comments === null) {
+            commentsContainer.innerHTML = "<p>Aucun commentaire pour le moment.</p>";
+        } else {
+            comments.forEach(comment => {
+                const commentElement = document.createElement("div");
+                commentElement.classList.add("comment");
+                commentElement.innerHTML = `
+                    <p>< ${comment.Content}</p>
+                    <p><small>Posté le ${new Date(comment.CreatedAt).toLocaleString()}</small></p>
+                `;
+                commentsContainer.appendChild(commentElement);
+            });
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commentaires:", error);
+        displayErrorModal("Erreur lors de la récupération des commentaires.");
+    }
+}
+
 
 document.getElementById("closeModal").addEventListener("click", () => {
     document.getElementById("postModal").style.display = "none";
-});   
-
-// async function fetchComments(postId) {
-    
-//     try {
-//         const response = await fetch(`/posts/comment/${postId}`, {
-//             method: "GET",
-//             credentials: "include",
-//             headers: {
-//                 "Content-Type": "application/json"
-//             },
-//             body: JSON.stringify({
-//                 PostId: postId,
-//                 Content: commentContent
-//             })
-//         });
-        
-
-//         if (!response.ok) {
-//             throw new Error("Erreur lors de la récupération des commentaires.");
-//         }
-
-//         const comments = await response.json();
-//         const commentsContainer = document.getElementById("commentsContainer");
-//         commentsContainer.innerHTML = "";
-
-//         if (comments.length === 0) {
-//             commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
-//             return;
-//         }
-
-//         comments.forEach(comment => {
-//             const commentElement = document.createElement("div");
-//             commentElement.classList.add("comment");
-//             commentElement.innerHTML = `
-//                 <p>${comment.Content}</p>
-//                 <small>${new Date(comment.CreatedAt).toLocaleString()}</small>
-//             `;
-//             commentsContainer.appendChild(commentElement);
-//         });
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
-
-
+});

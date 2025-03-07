@@ -6,6 +6,7 @@ import (
 	"forum/models"
 	"forum/services"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -82,7 +83,9 @@ func PostCommentHandler(w http.ResponseWriter, r *http.Request, commentService *
 }
 
 func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *services.CommentsService) {
-	postID := r.URL.Query().Get("post_id")
+	segment := strings.Split(r.URL.Path, "/")
+	postID := segment[len(segment)-1]
+	fmt.Println(postID)
 	if postID == "" {
 		ErrorHandler(w, r, http.StatusBadRequest, "Missing post_id parameter")
 		return
