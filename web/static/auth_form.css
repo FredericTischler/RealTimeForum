@@ -81,6 +81,72 @@
     text-decoration: underline;
 }
 
+/* --- Styles pour les composants du header (catégories et searchbar) --- */
+
+#filter {
+    flex: 1; /* Permet à ce conteneur de prendre tout l'espace disponible entre le titre et la zone d'authentification */
+    display: flex;
+    justify-content: center; /* Centre horizontalement le contenu (catégories et searchbar) */
+    align-items: center;     /* Centre verticalement */
+}
+
+/* Conteneur du menu déroulant des catégories */
+#categories {
+    margin-left: 1rem;
+}
+
+/* Le menu déroulant dans #categories */
+#categories select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+/* Conteneur de la search bar */
+#searchbar {
+    margin-left: 1rem;
+}
+
+/* Le formulaire de recherche s'affiche en flex pour aligner l'input et le bouton */
+#searchbar form {
+    display: flex;
+    align-items: center;
+}
+
+/* Le champ de saisie de la recherche */
+#searchbar form input[type="text"] {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px 0 0 4px;
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    outline: none;
+    width: 200px; /* ajustez selon vos besoins */
+}
+
+/* Le bouton de recherche */
+#searchbar form button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Effet hover pour le bouton de recherche */
+#searchbar form button:hover {
+    background-color: var(--accent-color);
+}
+
+
 @media (max-width: 480px) {
     #authSection {
         padding: 1rem;

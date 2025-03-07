@@ -60,11 +60,14 @@
     padding: 0.5rem;
     border: 1px solid var(--post-border-color);
     border-radius: 4px;
-    background-color: var(--background-color);
+    background-color: var(--secondary-bg);;
     color: var(--text-color);
 }
 
-#filtersForm button {
+#filtersForm button,
+#userFiltersForm button {
+    display: block;
+    width: 100%;
     padding: 0.75rem;
     border: none;
     border-radius: 4px;
@@ -75,9 +78,21 @@
     transition: opacity 0.3s ease;
 }
 
-#filtersForm button:hover {
+#filtersForm button:hover,
+#userFiltersForm button:hover {
     opacity: 0.9;
+    background-color: var(--accent-color);
 }
+
+
+
+#filtersForm button:hover,
+#userFiltersForm button:hover {
+    opacity: 0.9;
+    background-color: var(--accent-color);
+}
+
+
 
 @media (max-width: 600px) {
     .post {

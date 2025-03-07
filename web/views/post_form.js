@@ -19,8 +19,15 @@ export function PostForm(createPostButton) {
             <label for="title">Titre</label>
             <input type="text" name="title" id="title" required>
             
-            <label for="category">Catégorie</label>
-            <input type="text" name="category" id="category">
+            <select name="category" id="category">
+                <option value="">-- All Categories --</option>
+                <option value="Graffiti">Graffiti</option>
+                <option value="Rap">Rap</option>
+                <option value="Beatmaking">Beatmaking</option>
+                <option value="Breakdance">Breakdance</option>
+                <option value="Streetwear">Streetwear</option>
+            </select>
+
             
             <label for="content">Contenu</label>
             <textarea name="content" id="content" required></textarea>

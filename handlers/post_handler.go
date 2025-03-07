@@ -24,6 +24,8 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 		return
 	}
 
+	fmt.Println(payload.Category)
+
 	// Récupérer le cookie "session_token"
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
