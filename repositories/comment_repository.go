@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"forum/models"
 	"time"
 
@@ -28,7 +27,6 @@ func (cr *CommentsRepositories) InsertComment(userID uuid.UUID, postID, content 
 
 func (cr *CommentsRepositories) GetCommentsByPost(postID string) ([]models.Comment, error) {
 	query := `SELECT uuid, content, created_at, user_id FROM comments WHERE post_id = ? ORDER BY created_at ASC`
-	fmt.Println(postID)
 	rows, err := cr.DB.Query(query, postID)
 	if err != nil {
 		return nil, err

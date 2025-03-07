@@ -1,5 +1,5 @@
 import { PostForm } from "./post_form.js";
-import { displayPosts,renderPosts, updateFilters } from "./post_display.js";
+import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
 
 // Fonction qui interroge l'endpoint d'authentification

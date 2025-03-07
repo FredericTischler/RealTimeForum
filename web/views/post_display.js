@@ -80,7 +80,8 @@ function renderNoPosts() {
     }
 }
 
-function renderPosts(posts) {
+// Ajoute un lot de posts au conteneur existant
+function appendPosts(posts) {
     const postsContainer = document.getElementById("postsContainer");
     if (!postsContainer) return;
 
@@ -95,13 +96,151 @@ function renderPosts(posts) {
     posts.forEach(post => {
         const postElement = document.createElement("div");
         postElement.classList.add("post");
+        postElement.addEventListener("click", () => {
+            displayModal(post);
+        });
 
         postElement.innerHTML = `
       <h3>${post.Title}</h3>
       <p><em>Category : ${post.Category}</em></p>
       <p>${post.Content}</p>
-      <p><small>Created on ${new Date(post.CreatedAt).toLocaleString()}</small></p>
+      <p><small>${new Date(post.CreatedAt).toLocaleString()}</small></p>
     `;
         postsContainer.appendChild(postElement);
     });
 }
+
+let debounceTimer;
+
+function handleScroll() {
+    // On annule le timer précédent s'il existe
+    clearTimeout(debounceTimer);
+
+    // On démarre un nouveau timer avec un délai de 100ms
+    debounceTimer = setTimeout(() => {
+        // Vérifier si l'utilisateur est proche du bas de la page (à 200px près)
+        if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 200) {
+            loadMorePosts();
+        }
+    }, 100);
+}
+
+// N'oubliez pas d'ajouter l'écouteur de scroll
+window.addEventListener("scroll", handleScroll);
+
+async function displayModal(post) {
+    const modal = document.getElementById("postModal");
+    const modalContent = document.getElementById("modalContent");
+    const modalTitle = document.getElementById("modalTitle");
+
+    modalContent.innerHTML = `
+      <div id="modal-post">
+          <h2>${post.Title}</h2>      
+          <p><strong>Category:</strong> ${post.Category}</p>
+          <p>${post.Content}</p>
+          <p><small>${new Date(post.CreatedAt).toLocaleString()}</small></p>
+      </div>
+      <h4>Comments:</h4>
+      <div id="commentsContainer"></div> <!-- Section pour afficher les commentaires -->
+      <form id="commentForm">
+        <input type="text" name="comment" placeholder="New comment...">
+        <br>
+        <button class="authButton" style="margin-top: 10px;" type="submit">Add Comment</button>
+      </form>
+    `;
+
+    // Charger les commentaires existants
+    await fetchComments(post.PostId);
+
+    // Ecouter l'événement du formulaire pour ajouter un commentaire
+    const commentForm = document.getElementById("commentForm");
+    commentForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const commentContent = commentForm.comment.value;
+        console.log(commentContent)
+        if (commentContent.trim() === "") {
+            alert("Le commentaire ne peut pas être vide !");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/posts/comment/${post.PostId}`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    PostId: post.PostId,
+                    Content: commentContent
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+
+            commentForm.reset();
+            await fetchComments(post.PostId); // Rafraîchir les commentaires après ajout
+        } catch (error) {
+            displayErrorModal("Erreur lors de l'ajout du commentaire.");
+        }
+    });
+
+    modal.style.display = "block";
+}
+
+// Fonction pour récupérer et afficher les commentaires
+async function fetchComments(postId) {
+    const commentsContainer = document.getElementById("commentsContainer");
+    console.log("Fetching comments from:", `/posts/comment/${postId}`);
+
+    try {
+        const response = await fetch(`/posts/comment/${postId}`, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        console.log(response)
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
+
+        const comments = await response.json();
+        console.log("Commentaires récupérés:", comments);
+
+        commentsContainer.innerHTML = "";
+
+        if (comments === null) {
+            commentsContainer.innerHTML = "<p>Aucun commentaire pour le moment.</p>";
+        } else {
+            comments.forEach(comment => {
+                const commentElement = document.createElement("div");
+                commentElement.classList.add("comment");
+                commentElement.innerHTML = `
+                    <h2>${comment.Username}</h2>
+                    <p> ${comment.Comment.Content}</p>
+                    <p><small>${new Date(comment.Comment.CreatedAt).toLocaleString()}</small></p>
+                `;
+                commentsContainer.appendChild(commentElement);
+            });
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commentaires:", error);
+        displayErrorModal("Erreur lors de la récupération des commentaires.");
+    }
+}
+
+
+const postModal = document.getElementById("postModal");
+
+postModal.addEventListener("click", (event) => {
+    // Si le clic est sur le conteneur du modal lui-même, fermer le modal
+    if (event.target === postModal) {
+        postModal.style.display = "none";
+    }
+});
+
