@@ -7,6 +7,7 @@ import (
 	"forum/services"
 	"github.com/gofrs/uuid"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -22,6 +23,8 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 		ErrorHandler(w, r, http.StatusBadRequest, "Unable to decode JSON payload")
 		return
 	}
+
+	fmt.Println(payload.Category)
 
 	// Récupérer le cookie "session_token"
 	cookie, err := r.Cookie("session_token")
@@ -83,7 +86,28 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 
 // GetPostsHandler gère les requêtes GET pour récupérer tous les posts.
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService) {
-	posts, err := postService.GetAllPosts()
+	// Paramètres de pagination avec valeurs par défaut
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+	limit := 10
+	offset := 0
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil {
+			limit = l
+		}
+	}
+	if offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil {
+			offset = o
+		}
+	}
+
+	// Récupérer les filtres
+	category := r.URL.Query().Get("category")
+	keyword := r.URL.Query().Get("keyword")
+
+	// Appel du service avec les paramètres
+	posts, err := postService.GetPosts(limit, offset, category, keyword)
 	if err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve posts: %v", err))
 		return

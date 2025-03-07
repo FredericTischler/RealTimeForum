@@ -9,54 +9,40 @@
     <link href="web/static/post_form.css" rel="stylesheet">
     <link href="web/static/post_display.css" rel="stylesheet">
     <link href="web/static/error_modal.css" rel="stylesheet">
-
     <title>Urban Vibe</title>
 </head>
 <body>
 <header>
     <div class="header-container">
         <h1 id="forumTitle">Urban Vibe</h1>
-        <!-- Si l'utilisateur est connecté, authContainer affichera les options Logout et "Créer un post" -->
+        <div id="filter">
+            <div id="categories"></div>
+            <div id="searchbar"></div>
+        </div>
+        <!-- Zone pour le bouton Logout et éventuellement le bouton "Créer un post" -->
         <div id="authContainer"></div>
     </div>
 </header>
 
-<!-- Section d'authentification pour les utilisateurs non connectés -->
+<!-- Section d'authentification pour les non connectés -->
 <section id="authSection">
-    <!-- Formulaire de sign in affiché directement -->
     <div id="login"></div>
-    <!-- Conteneur pour le formulaire de sign up, caché par défaut -->
     <div id="register" style="display: none;"></div>
 </section>
 
 <!-- Contenu principal accessible une fois connecté -->
 <div class="content-container">
-    <main>
-        <!-- Zone réservée aux filtres pour les posts -->
-        <section id="postFilters" class="filters">
-            <!-- Filtres pour les posts (logique à implémenter ultérieurement) -->
-        </section>
-        <!-- Affichage des posts -->
-        <section id="postsSection">
-            <div id="postsContainer"></div>
-        </section>
-    </main>
-
-    <!-- Sidebar pour la liste des utilisateurs connectés -->
-    <aside id="usersSidebar">
-        <section id="userFilters" class="filters">
-            <!-- Filtres pour les utilisateurs -->
-        </section>
-        <section id="usersList">
-
-        </section>
-    </aside>
+    <!-- Aside pour la sidebar des utilisateurs (vide initialement) -->
+    <aside id="usersSidebar" class="filters"></aside>
+    <!-- Section pour l'affichage des posts -->
+    <section id="postsSection">
+        <div id="postsContainer"></div>
+    </section>
 
 </div>
 
 <!-- Conteneur pour le formulaire de création/modification de post -->
 <div class="modal post-form-container" id="post-form-container"></div>
-
 <div id="errorModalContainer"></div>
 
 <!-- Scripts en mode module -->
