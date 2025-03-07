@@ -78,6 +78,5 @@ func (pr *PostsRepository) GetPosts(limit, offset int, category, keyword string)
 		}
 		posts = append(posts, &post)
 	}
-	fmt.Println(posts)
 	return posts, nil
 }
