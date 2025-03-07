@@ -50,9 +50,7 @@ async function loadMorePosts() {
             offset += limit;
         }
     } catch (error) {
-        if (offset === 0) {
-            displayErrorModal("Erreur lors de la récupération des posts.");
-        }
+
     }
     isLoading = false;
     if (!allPostsLoaded && document.body.offsetHeight < window.innerHeight) {
