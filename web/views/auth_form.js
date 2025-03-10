@@ -6,19 +6,21 @@ export function displayLoginForm() {
     const loginContainer = document.getElementById("login");
     loginContainer.style.display = "block";
     loginContainer.innerHTML = `
-    <div class="container">
-      <h2>Sign in</h2>
-      <form id="loginForm">
-        <label for="identifier">Username</label>
-        <input type="text" name="identifier" id="identifier" required>
-        
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required>
-        
-        <button class="authButton" type="submit">Sign in</button>
-      </form>
-      <p>You don't have any account ? <a href="#" id="switchToRegister">Sign up</a></p>
-    </div>
+    <div id="login-container">
+      <div class="container">
+        <h2>Sign in</h2>
+        <form id="loginForm">
+          <label for="identifier">Username</label>
+          <input type="text" name="identifier" id="identifier" required>
+          
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" required>
+          
+          <button class="authButton" type="submit">Sign in</button>
+        </form>
+        <p>You don't have any account ? <a href="#" id="switchToRegister">Sign up</a></p>
+      </div>
+   </div>
   `;
     const loginForm = document.getElementById("loginForm");
     loginForm.addEventListener("submit", async (e) => {
@@ -56,39 +58,41 @@ export function displayRegisterForm() {
     document.getElementById("login").style.display = "none";
     registerContainer.style.display = "block";
     registerContainer.innerHTML = `
-    <div class="container">
-      <h2>Sign up</h2>
-      <form id="registerForm">
-        <label for="user_name">Username</label>
-        <input type="text" name="user_name" id="user_name" required>
-  
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" required>
-  
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required>
-  
-        <label for="first_name">Firstname</label>
-        <input type="text" name="first_name" id="first_name" required>
-  
-        <label for="last_name">Lastname</label>
-        <input type="text" name="last_name" id="last_name" required>
-  
-        <label for="age">Age</label>
-        <input type="number" name="age" id="age" required>
-  
-        <label for="gender">Gender</label>
-        <select name="gender" id="gender">
-          <option value="">Select your gender</option>
-          <option value="Female">Female</option>
-          <option value="Male">Male</option>
-          <option value="Other">Other</option>
-        </select>
-  
-        <button class="authButton" type="submit">Sign up</button>
-      </form>
-      <p>You already have an account ? <a href="#" id="switchToLogin">Sign in</a></p>
-    </div>
+      <div id="login-container">
+        <div class="container">
+          <h2>Sign up</h2>
+          <form id="registerForm">
+            <label for="user_name">Username</label>
+            <input type="text" name="user_name" id="user_name" required>
+      
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+      
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+      
+            <label for="first_name">Firstname</label>
+            <input type="text" name="first_name" id="first_name" required>
+      
+            <label for="last_name">Lastname</label>
+            <input type="text" name="last_name" id="last_name" required>
+      
+            <label for="age">Age</label>
+            <input type="number" name="age" id="age" required>
+      
+            <label for="gender">Gender</label>
+            <select name="gender" id="gender">
+              <option value="">Select your gender</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+      
+            <button class="authButton" type="submit">Sign up</button>
+          </form>
+          <p>You already have an account ? <a href="#" id="switchToLogin">Sign in</a></p>
+        </div>
+      </div>
   `;
 
   const registerForm = document.getElementById("registerForm");

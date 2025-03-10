@@ -44,7 +44,7 @@ export async function displayPosts() {
 async function loadMorePosts() {
     if (isLoading || allPostsLoaded) return;
     isLoading = true;
-
+    
     const userLoggedIn = await isAuthenticated();
     if (!userLoggedIn) {
         renderNoPosts();  // L'utilisateur n'est pas connecté, afficher message approprié
