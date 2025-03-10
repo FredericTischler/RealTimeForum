@@ -150,7 +150,7 @@ async function displayModal(post) {
     `;
 
     // Charger les commentaires existants
-    await fetchComments(post.PostId);
+    await fetchComments(post.Post.PostId);
 
     // Ecouter l'événement du formulaire pour ajouter un commentaire
     const commentForm = document.getElementById("commentForm");
@@ -164,14 +164,14 @@ async function displayModal(post) {
         }
 
         try {
-            const response = await fetch(`/posts/comment/${post.PostId}`, {
+            const response = await fetch(`/posts/comment/${post.Post.PostId}`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    PostId: post.PostId,
+                    PostId: post.Post.PostId,
                     Content: commentContent
                 })
             });
@@ -182,7 +182,7 @@ async function displayModal(post) {
             }
 
             commentForm.reset();
-            await fetchComments(post.PostId); // Rafraîchir les commentaires après ajout
+            await fetchComments(post.Post.PostId); // Rafraîchir les commentaires après ajout
         } catch (error) {
             displayErrorModal("Erreur lors de l'ajout du commentaire.");
         }
