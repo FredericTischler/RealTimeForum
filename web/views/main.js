@@ -167,3 +167,4 @@ function updateUIAfterLogout() {
 document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
 });
+
