@@ -135,10 +135,10 @@ async function displayModal(post) {
 
     modalContent.innerHTML = `
       <div id="modal-post">
-          <h2>${post.Title}</h2>      
-          <p><strong>Category:</strong> ${post.Category}</p>
-          <p>${post.Content}</p>
-          <p><small>${new Date(post.CreatedAt).toLocaleString()}</small></p>
+          <h2>${post.Post.Title}</h2>      
+          <p><strong>Category:</strong> ${post.Post.Category}</p>
+          <p>${post.Post.Content}</p>
+          <p>${post.Username} <small>${new Date(post.Post.CreatedAt).toLocaleString()}</small></p>
       </div>
       <h4>Comments:</h4>
       <div id="commentsContainer"></div> <!-- Section pour afficher les commentaires -->
