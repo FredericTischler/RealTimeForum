@@ -13,8 +13,30 @@ let offset = 0;
 let isLoading = false;
 let allPostsLoaded = false;
 
+async function isAuthenticated() {
+    try {
+        const response = await fetch("/auth/status", {
+            credentials: "include"
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.authenticated;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error("Erreur lors de la vérification d'authentification:", error);
+        return false;
+    }
+}
+
 // Fonction pour initialiser le chargement des posts et l'écoute du scroll
-export function displayPosts() {
+export async function displayPosts() {
+    const userLoggedIn = await isAuthenticated();
+    if (!userLoggedIn) {
+        renderNoPosts();  // L'utilisateur n'est pas connecté, afficher message approprié
+        return;
+    }
     loadMorePosts();
     window.addEventListener("scroll", handleScroll);
 }
@@ -22,6 +44,12 @@ export function displayPosts() {
 async function loadMorePosts() {
     if (isLoading || allPostsLoaded) return;
     isLoading = true;
+
+    const userLoggedIn = await isAuthenticated();
+    if (!userLoggedIn) {
+        renderNoPosts();  // L'utilisateur n'est pas connecté, afficher message approprié
+        return;
+    }
     try {
         // Construire la query string avec les filtres courants
         const queryParams = new URLSearchParams({
@@ -75,9 +103,12 @@ export function updateFilters(category, keyword, author = "") {
 
 function renderNoPosts() {
     const postsContainer = document.getElementById("postsContainer");
+
     if (postsContainer) {
-        postsContainer.innerHTML = "<p>Aucun post à afficher.</p>";
+        postsContainer.remove()
     }
+
+
 }
 
 // Ajoute un lot de posts au conteneur existant

@@ -161,6 +161,8 @@ function updateUIAfterLogout() {
     if (authSection) {
         authSection.style.display = "block";
     }
+    const usersSideBar = document.getElementById("usersSidebar")
+    usersSideBar.style.display = "none";
     displayLoginForm(); // Affiche le formulaire de connexion
 }
 
