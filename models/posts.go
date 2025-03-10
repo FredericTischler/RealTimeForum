@@ -34,3 +34,8 @@ type GetPostResponse struct {
 	response *ResponseBody
 	post     *Post
 }
+
+type PostAuthor struct {
+	Post     Post
+	Username string
+}

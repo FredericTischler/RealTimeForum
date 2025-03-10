@@ -25,7 +25,7 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 		if r.Method == http.MethodPost {
 			handlers.PostsHandler(w, r, postsService, sessionService)
 		} else if r.Method == http.MethodGet {
-			handlers.GetPostsHandler(w, r, postsService)
+			handlers.GetPostsHandler(w, r, postsService, userService)
 		}
 	})
 	mux.HandleFunc("/auth/status", func(w http.ResponseWriter, r *http.Request) {

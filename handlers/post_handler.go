@@ -85,7 +85,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.
 }
 
 // GetPostsHandler gère les requêtes GET pour récupérer tous les posts.
-func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService) {
+func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService, userService *services.UserService) {
 	// Paramètres de pagination avec valeurs par défaut
 	limitStr := r.URL.Query().Get("limit")
 	offsetStr := r.URL.Query().Get("offset")
@@ -109,12 +109,27 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *servic
 	// Appel du service avec les paramètres
 	posts, err := postService.GetPosts(limit, offset, category, keyword)
 	if err != nil {
+		fmt.Println(err.Error())
 		ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve posts: %v", err))
 		return
 	}
 
+	var response []models.PostAuthor
+	for _, post := range posts {
+		var result models.PostAuthor
+		result.Post = *post
+		username, err := userService.GetUserByUUID(post.UserId.String())
+		if err != nil {
+			fmt.Println(err.Error())
+			ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve username: %v", err))
+			return
+		}
+		result.Username = username
+		response = append(response, result)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(posts); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		ErrorHandler(w, r, http.StatusInternalServerError, err.Error())
 	}
 }

@@ -101,10 +101,10 @@ function appendPosts(posts) {
         });
 
         postElement.innerHTML = `
-      <h3>${post.Title}</h3>
-      <p><em>Category : ${post.Category}</em></p>
-      <p>${post.Content}</p>
-      <p><small>${new Date(post.CreatedAt).toLocaleString()}</small></p>
+      <h3>${post.Post.Title}</h3>
+      <p><em>Category : ${post.Post.Category}</em></p>
+      <p>${post.Post.Content}</p>
+      <p>${post.Username} <small>${new Date(post.Post.CreatedAt).toLocaleString()}</small></p>
     `;
         postsContainer.appendChild(postElement);
     });
