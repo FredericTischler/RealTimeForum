@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-func StartServer(mux *http.ServeMux) {
+func StartServer(handler http.Handler) {
 	server := &http.Server{
 		Addr:              ":8443",
-		Handler:           mux,
+		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       120 * time.Second,

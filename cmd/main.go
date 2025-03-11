@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"forum/config"
+	"forum/middleware"
 	"forum/repositories"
 	"forum/services"
 	"net/http"
@@ -38,6 +39,8 @@ func main() {
 	// Initialiser les routes
 	config.InitializeRoutes(mux, userService, authService, postService, commentService, sessionService)
 
+	rateLimitedHandler := middleware.SessionRateLimiter(sessionService, mux)
+
 	fmt.Println("Starting server...")
-	config.StartServer(mux)
+	config.StartServer(rateLimitedHandler)
 }
