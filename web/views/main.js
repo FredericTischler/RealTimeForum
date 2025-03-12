@@ -191,11 +191,9 @@ function updateConnectedUsersList(users) {
   const usersList = document.getElementById("usersList");
   if (usersList) {
       usersList.innerHTML = ""; // Clear the list
-      console.log(users)
       users.forEach(user => {
-        console.log(user)
           const li = document.createElement("li");
-          li.textContent = user; // Assurez-vous que `Username` est le bon champ
+          li.textContent = user;
           usersList.appendChild(li);
       });
   }

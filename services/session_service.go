@@ -33,7 +33,6 @@ func (ss *SessionService) GetActiveSessions() ([]models.ActiveSession, error) {
 	query := `SELECT id, uuid, user_id, token, created_at, expires_at FROM sessions WHERE expires_at > ?`
 	rows, err := ss.SessionRepo.DB.Query(query, time.Now())
 	if err != nil {
-		log.Printf("Error querying active sessions: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -42,12 +41,12 @@ func (ss *SessionService) GetActiveSessions() ([]models.ActiveSession, error) {
 	for rows.Next() {
 		var session models.ActiveSession
 		err := rows.Scan(
-			&session.SessionId, // id
-			&session.UUID,      // uuid
-			&session.UserId,    // user_id
-			&session.Token,     // token
-			&session.CreatedAt, // created_at
-			&session.ExpireAt,  // expires_at
+			&session.SessionId,
+			&session.UUID,
+			&session.UserId,
+			&session.Token,
+			&session.CreatedAt,
+			&session.ExpireAt,
 		)
 		if err != nil {
 			log.Printf("Error scanning session: %v\n", err)
