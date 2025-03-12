@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"forum/models"
 	"forum/services"
-	"github.com/gofrs/uuid"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 func PostsHandler(w http.ResponseWriter, r *http.Request, postService *services.PostsService, sessionService *services.SessionService) {
@@ -124,7 +125,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, postService *servic
 			ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve username: %v", err))
 			return
 		}
-		result.Username = username
+		result.Username = username.Username
 		response = append(response, result)
 	}
 

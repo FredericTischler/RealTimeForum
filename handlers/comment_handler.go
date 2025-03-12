@@ -93,7 +93,7 @@ func GetCommentHandler(w http.ResponseWriter, r *http.Request, commentService *s
 			ErrorHandler(w, r, http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve username: %v", err))
 			return
 		}
-		result.Username = username
+		result.Username = username.Username
 		response = append(response, result)
 	}
 

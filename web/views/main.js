@@ -130,13 +130,10 @@ function updateUIAfterLogin() {
           <button type="submit">Filter</button>
         </form>
       </section>
-      <section id="usersList">
-        <ul>
-          <li><strong>Utilisateur1</strong> - Admin</li>
-          <li><strong>Utilisateur2</strong> - Membre</li>
-          <li><strong>Utilisateur3</strong> - Modérateur</li>
-          <li><strong>Utilisateur4</strong> - Membre</li>
-          <li><strong>Utilisateur5</strong> - Membre</li>
+      <section>
+      <h3>Connected Users:
+        <ul id="usersList">
+          
         </ul>
       </section>
     `;
@@ -170,3 +167,40 @@ document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
 });
 
+async function fetchConnectedUsers() {
+  try {
+      const response = await fetch("/users/connected", {
+          credentials: "include"
+      });
+      console.log(response)
+      if (response.ok) {
+          const users = await response.json();
+          updateConnectedUsersList(users);
+      } else {
+          console.error("Failed to fetch connected users");
+      }
+  } catch (error) {
+      console.error("Error fetching connected users:", error);
+  }
+}
+
+function updateConnectedUsersList(users) {
+  const usersList = document.getElementById("usersList");
+  if (usersList) {
+      usersList.innerHTML = ""; // Clear the list
+
+      users.forEach(user => {
+        console.log(user.Username)
+          const li = document.createElement("li");
+          li.textContent = user.Username; // Assurez-vous que `Username` est le bon champ
+          usersList.appendChild(li);
+      });
+  }
+}
+
+// Appeler cette fonction après la connexion ou à intervalle régulier
+document.addEventListener("DOMContentLoaded", () => {
+  checkAuthStatus();
+  fetchConnectedUsers(); // Initial fetch
+  setInterval(fetchConnectedUsers, 60000); // Refresh every 60 seconds
+});

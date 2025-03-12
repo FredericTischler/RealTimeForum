@@ -23,6 +23,6 @@ func (us *UserService) GetUserByUsername(username string) (*models.User, error) 
 	return us.UserRepo.GetUserByUsername(username)
 }
 
-func (us *UserService) GetUserByUUID(userID string) (string, error) {
+func (us *UserService) GetUserByUUID(userID string) (*models.User, error) {
 	return us.UserRepo.GetUserByUUID(userID)
 }

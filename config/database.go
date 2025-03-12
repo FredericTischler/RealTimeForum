@@ -85,7 +85,7 @@ func DefineTables(db *sql.DB) {
 	sessionsTable := `CREATE TABLE IF NOT EXISTS sessions(
 		"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		"uuid" VARCHAR(36) NOT NULL UNIQUE,
-		"user_id" VARCHAR(36) NOT NULL UNIQUE,
+		"user_id" VARCHAR(36) NOT NULL,
 		"token" VARCHAR(36) NOT NULL UNIQUE,
 		"created_at" DATETIME NOT NULL,
 		"expires_at" DATETIME,
