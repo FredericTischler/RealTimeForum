@@ -40,7 +40,7 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 		}
 	})
 	mux.HandleFunc("/users/connected", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GetConnectedUsersHandler(w, r, sessionService)
+		handlers.GetConnectedUsersHandler(w, r, sessionService, userService)
 	})
 	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
 	mux.HandleFunc("/message", handlers.MessageHandler)

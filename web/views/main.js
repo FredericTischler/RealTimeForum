@@ -170,7 +170,10 @@ document.addEventListener("DOMContentLoaded", () => {
 async function fetchConnectedUsers() {
   try {
       const response = await fetch("/users/connected", {
-          credentials: "include"
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+        }
       });
       console.log(response)
       if (response.ok) {
@@ -188,11 +191,11 @@ function updateConnectedUsersList(users) {
   const usersList = document.getElementById("usersList");
   if (usersList) {
       usersList.innerHTML = ""; // Clear the list
-
+      console.log(users)
       users.forEach(user => {
-        console.log(user.Username)
+        console.log(user)
           const li = document.createElement("li");
-          li.textContent = user.Username; // Assurez-vous que `Username` est le bon champ
+          li.textContent = user; // Assurez-vous que `Username` est le bon champ
           usersList.appendChild(li);
       });
   }
@@ -201,6 +204,6 @@ function updateConnectedUsersList(users) {
 // Appeler cette fonction après la connexion ou à intervalle régulier
 document.addEventListener("DOMContentLoaded", () => {
   checkAuthStatus();
-  fetchConnectedUsers(); // Initial fetch
-  setInterval(fetchConnectedUsers, 60000); // Refresh every 60 seconds
+  fetchConnectedUsers();
+  setInterval(fetchConnectedUsers, 100);
 });

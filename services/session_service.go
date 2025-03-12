@@ -3,6 +3,7 @@ package services
 import (
 	"forum/models"
 	"forum/repositories"
+	"log"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -28,19 +29,28 @@ func (ss *SessionService) DeleteSessionByToken(token string) error {
 	return ss.SessionRepo.DeleteSessionByToken(token)
 }
 
-func (ss *SessionService) GetActiveSessions() ([]models.Session, error) {
-	query := `SELECT * FROM sessions WHERE expires_at > ?`
+func (ss *SessionService) GetActiveSessions() ([]models.ActiveSession, error) {
+	query := `SELECT id, uuid, user_id, token, created_at, expires_at FROM sessions WHERE expires_at > ?`
 	rows, err := ss.SessionRepo.DB.Query(query, time.Now())
 	if err != nil {
+		log.Printf("Error querying active sessions: %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var sessions []models.Session
+	var sessions []models.ActiveSession
 	for rows.Next() {
-		var session models.Session
-		err := rows.Scan(&session.SessionId, &session.UserId, &session.Token, &session.CreatedAt, &session.ExpireAt)
+		var session models.ActiveSession
+		err := rows.Scan(
+			&session.SessionId, // id
+			&session.UUID,      // uuid
+			&session.UserId,    // user_id
+			&session.Token,     // token
+			&session.CreatedAt, // created_at
+			&session.ExpireAt,  // expires_at
+		)
 		if err != nil {
+			log.Printf("Error scanning session: %v\n", err)
 			return nil, err
 		}
 		sessions = append(sessions, session)
