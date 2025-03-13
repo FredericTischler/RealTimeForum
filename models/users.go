@@ -37,3 +37,9 @@ type GetUserResponse struct {
 	response *ResponseBody
 	user     *User
 }
+
+type UserList struct {
+	Username string
+	Age      int
+	Gender   string
+}

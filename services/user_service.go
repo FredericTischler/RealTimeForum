@@ -26,3 +26,7 @@ func (us *UserService) GetUserByUsername(username string) (*models.User, error) 
 func (us *UserService) GetUserByUUID(userID string) (string, error) {
 	return us.UserRepo.GetUserByUUID(userID)
 }
+
+func (us *UserService) GetUsernameAndAgeAndGenderByUUID(userID string) (*models.UserList, error) {
+	return us.UserRepo.GetUsernameAndAgeAndGenderByUUID(userID)
+}

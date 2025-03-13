@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"forum/models"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -9,22 +10,22 @@ import (
 
 // Hub central pour gérer les connexions
 type Hub struct {
-	clients map[*websocket.Conn]string // Vous pouvez associer chaque connexion à un identifiant utilisateur
+	clients map[*websocket.Conn]*models.UserList // Vous pouvez associer chaque connexion à un identifiant utilisateur
 	mu      sync.Mutex
 }
 
 // NewHub initialise un hub
 func NewHub() *Hub {
 	return &Hub{
-		clients: make(map[*websocket.Conn]string),
+		clients: make(map[*websocket.Conn]*models.UserList),
 	}
 }
 
 // AddClient ajoute une nouvelle connexion et son identifiant utilisateur
-func (h *Hub) AddClient(conn *websocket.Conn, userID string) {
+func (h *Hub) AddClient(conn *websocket.Conn, user *models.UserList) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	h.clients[conn] = userID
+	h.clients[conn] = user
 }
 
 // RemoveClient supprime une connexion
@@ -40,7 +41,7 @@ func (h *Hub) BroadcastUsers() {
 	defer h.mu.Unlock()
 
 	// Récupérer la liste des identifiants
-	var onlineUsers []string
+	var onlineUsers []*models.UserList
 	for _, userID := range h.clients {
 		onlineUsers = append(onlineUsers, userID)
 	}

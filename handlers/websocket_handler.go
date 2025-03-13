@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"forum/models"
 	"forum/services"
 	"forum/utils"
 	"github.com/gorilla/websocket"
@@ -23,15 +24,15 @@ func WebsocketHandler(hub *utils.Hub, sessionService *services.SessionService, u
 			return
 		}
 		// Récupérer le nom d'utilisateur depuis la session
-		userID := getUsernameFromRequest(r, sessionService, userService)
-		if userID == "" {
+		user := getUsernameFromRequest(r, sessionService, userService)
+		if user == nil {
 			conn.Close()
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		// Ajout de la connexion au hub et diffusion de la liste mise à jour
-		hub.AddClient(conn, userID)
+		hub.AddClient(conn, user)
 		hub.BroadcastUsers()
 
 		// Boucle de lecture pour maintenir la connexion ouverte
@@ -49,21 +50,21 @@ func WebsocketHandler(hub *utils.Hub, sessionService *services.SessionService, u
 }
 
 // getUsernameFromRequest récupère le nom d'utilisateur à partir de la session et du UserService
-func getUsernameFromRequest(r *http.Request, sessionService *services.SessionService, userService *services.UserService) string {
+func getUsernameFromRequest(r *http.Request, sessionService *services.SessionService, userService *services.UserService) *models.UserList {
 	// Récupérer le cookie de session
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		return ""
+		return nil
 	}
 	// Récupérer la session associée au token
 	session, err := sessionService.GetSessionByToken(cookie.Value)
 	if err != nil {
-		return ""
+		return nil
 	}
 	// Récupérer l'utilisateur via son ID présent dans la session
-	user, err := userService.GetUserByUUID(session.UserId.String())
+	user, err := userService.GetUsernameAndAgeAndGenderByUUID(session.UserId.String())
 	if err != nil {
-		return ""
+		return nil
 	}
 	return user
 }

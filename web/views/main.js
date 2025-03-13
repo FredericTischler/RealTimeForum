@@ -130,15 +130,7 @@ function updateUIAfterLogin() {
           <button type="submit">Filter</button>
         </form>
       </section>
-      <section id="usersList">
-        <ul>
-          <li><strong>Utilisateur1</strong> - Admin</li>
-          <li><strong>Utilisateur2</strong> - Membre</li>
-          <li><strong>Utilisateur3</strong> - Modérateur</li>
-          <li><strong>Utilisateur4</strong> - Membre</li>
-          <li><strong>Utilisateur5</strong> - Membre</li>
-        </ul>
-      </section>
+      <section id="usersList"></section>
     `;
     }
 
@@ -163,12 +155,18 @@ function updateUIAfterLogin() {
         if (usersListSection) {
             let html = "<ul>";
             onlineUsers.forEach(user => {
-                html += `<li><strong>${user}</strong></li>`;
+                html += `
+              <li>
+                <span class="username">${user.Username}</span>
+                <span class="age">${user.Age}</span>
+                <span class="gender">${user.Gender}</span>
+              </li>`;
             });
             html += "</ul>";
             usersListSection.innerHTML = html;
         }
     };
+
 
 
     ws.onerror = (error) => {
