@@ -82,7 +82,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 	// Authentification : récupération de l'UUID de l'utilisateur et du token de session
 	userId, token, err := authService.Login(identifier, password)
 	if err != nil {
-		fmt.Println(err.Error())
 		ErrorHandler(w, r, http.StatusUnauthorized, "Invalid identifier or password")
 		return
 	}

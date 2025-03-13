@@ -150,6 +150,34 @@ function updateUIAfterLogin() {
 
     // Appel à la fonction d'affichage des posts
     displayPosts();
+
+    const ws = new WebSocket("ws://localhost:8443/ws");
+
+    ws.onopen = () => {
+        console.log("Connexion WebSocket établie");
+    };
+
+    ws.onmessage = (event) => {
+        const onlineUsers = JSON.parse(event.data);
+        const usersListSection = document.getElementById("usersList");
+        if (usersListSection) {
+            let html = "<ul>";
+            onlineUsers.forEach(user => {
+                html += `<li><strong>${user}</strong></li>`;
+            });
+            html += "</ul>";
+            usersListSection.innerHTML = html;
+        }
+    };
+
+
+    ws.onerror = (error) => {
+        console.error("Erreur WebSocket :", error);
+    };
+
+    ws.onclose = () => {
+        console.log("Connexion WebSocket fermée");
+    };
 }
 
 function updateUIAfterLogout() {
