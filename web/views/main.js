@@ -2,6 +2,7 @@ import { PostForm } from "./post_form.js";
 import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
 
+let ws
 // Fonction qui interroge l'endpoint d'authentification
 async function checkAuthStatus() {
     try {
@@ -58,7 +59,6 @@ function updateUIAfterLogin() {
             const category = document.getElementById("categoryMenu").value;
             updateFilters(category, keyword);
         });
-
     }
 
     // Nettoyage des zones d'authentification
@@ -143,31 +143,34 @@ function updateUIAfterLogin() {
     // Appel à la fonction d'affichage des posts
     displayPosts();
 
-    const ws = new WebSocket("ws://localhost:8443/ws");
+    // Connexion WebSocket
+    ws = new WebSocket("ws://localhost:8443/ws");
 
     ws.onopen = () => {
         console.log("Connexion WebSocket établie");
     };
 
     ws.onmessage = (event) => {
-        const onlineUsers = JSON.parse(event.data);
-        const usersListSection = document.getElementById("usersList");
-        if (usersListSection) {
-            let html = "<ul>";
-            onlineUsers.forEach(user => {
-                html += `
-              <li>
-                <span class="username">${user.Username}</span>
-                <span class="age">${user.Age}</span>
-                <span class="gender">${user.Gender}</span>
-              </li>`;
-            });
-            html += "</ul>";
-            usersListSection.innerHTML = html;
+        const data = JSON.parse(event.data);
+        console.log("Données reçues :", data.type); // Log pour vérifier les données
+        
+        if (data.type === "users") {
+            const usersListSection = document.getElementById("usersList");
+            if (usersListSection) {
+                let html = "<ul>";
+                data.users.forEach((user) => {
+                    html += `<li><span class="user">${user.Username}</span></li>`;
+                });
+                html += "</ul>";
+                usersListSection.innerHTML = html;
+            }
+        } else if (data.type === "message") {
+            console.log(data.content)
+            const messageElement = document.createElement("div");
+            messageElement.textContent = `${data.sender}: ${data.content}`;
+            messageContainer.appendChild(messageElement);
         }
     };
-
-
 
     ws.onerror = (error) => {
         console.error("Erreur WebSocket :", error);
@@ -176,6 +179,29 @@ function updateUIAfterLogin() {
     ws.onclose = () => {
         console.log("Connexion WebSocket fermée");
     };
+}
+
+// Fonction pour charger les messages historiques
+async function loadMessages(sender, recipient) {
+    try {
+        const response = await fetch(`/api/messages?sender=${sender}&recipient=${recipient}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch messages");
+        }
+        const messages = await response.json();
+
+        // Afficher les messages dans le modal
+        const messageContainer = document.getElementById("messageContainer");
+        messageContainer.innerHTML = ""; // Vider les messages précédents
+
+        messages.forEach((message) => {
+            const messageElement = document.createElement("div");
+            messageElement.textContent = `${message.sender}: ${message.content}`;
+            messageContainer.appendChild(messageElement);
+        });
+    } catch (error) {
+        console.error("Error loading messages:", error);
+    }
 }
 
 function updateUIAfterLogout() {
@@ -196,3 +222,71 @@ document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
 });
 
+// Sélectionnez le modal et les éléments associés
+const messageModal = document.getElementById("messageModal");
+const closeModal = document.querySelector("#messageModal .close");
+const recipientUsernameElement = document.getElementById("recipientUsername");
+const messageContainer = document.getElementById("messageContainer");
+const messageInput = document.getElementById("messageInput");
+const sendMessageButton = document.getElementById("sendMessageButton");
+
+// Fonction pour ouvrir le modal
+function openMessageModal(username) {
+    recipientUsernameElement.textContent = username; // Afficher le nom de l'utilisateur
+    messageModal.style.display = "block"; // Afficher le modal
+    messageContainer.innerHTML = ""; // Vider les messages précédents
+    messageInput.value = ""; // Vider l'input
+
+    // Charger les messages historiques
+    const currentUser = " "; // Remplacez par le nom de l'utilisateur actuel
+    loadMessages(currentUser, username);
+}
+
+// Fonction pour fermer le modal
+function closeMessageModal() {
+    messageModal.style.display = "none";
+}
+
+// Ajouter un événement de clic sur les utilisateurs connectés
+document.getElementById("usersSidebar").addEventListener("click", (event) => {
+    if (event.target.classList.contains("user")) {
+        const username = event.target.textContent;
+        openMessageModal(username);
+    }
+});
+
+// Fermer le modal lorsque l'utilisateur clique sur la croix
+closeModal.addEventListener("click", closeMessageModal);
+
+// Fermer le modal lorsque l'utilisateur clique en dehors du modal
+window.addEventListener("click", (event) => {
+    if (event.target === messageModal) {
+        closeMessageModal();
+    }
+});
+
+// Exemple d'envoi de message
+sendMessageButton.addEventListener("click", () => {
+    const message = messageInput.value.trim();
+    if (message) {
+        const recipient = recipientUsernameElement.textContent;
+        const sender = " "; // Remplacez par le nom de l'utilisateur actuel
+
+        // Envoyer le message via WebSocket
+        const messageData = {
+            type: "message",
+            sender: sender,
+            recipient: recipient,
+            content: message,
+        };
+        ws.send(JSON.stringify(messageData));
+
+        // Ajouter le message à l'affichage
+        const messageElement = document.createElement("div");
+        messageElement.textContent = `${sender}: ${message}`;
+        messageContainer.appendChild(messageElement);
+
+        // Vider l'input
+        messageInput.value = "";
+    }
+});

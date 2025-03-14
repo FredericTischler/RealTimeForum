@@ -1,17 +1,18 @@
 package models
 
 import (
-	"github.com/gofrs/uuid"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 type Message struct {
-	messageId  uuid.UUID
-	senderId   uuid.UUID
-	receiverId uuid.UUID
-	content    string
-	sentAt     time.Time
-	isRead     bool
+	MessageID  uuid.UUID `json:"messageuuid"`
+	SenderID   string    `json:"senderuuid"`
+	ReceiverID string    `json:"receiveruuid"`
+	Content    string    `json:"content"`
+	SentAt     time.Time `json:"timestamp"`
+	IsRead     bool      `json:"is_read"`
 }
 
 type MessageResponse struct {

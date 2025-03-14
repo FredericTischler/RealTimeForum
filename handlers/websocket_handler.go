@@ -4,8 +4,10 @@ import (
 	"forum/models"
 	"forum/services"
 	"forum/utils"
-	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 // Configuration de l'upgrader pour autoriser les connexions depuis n'importe quelle origine
@@ -17,35 +19,54 @@ var upgrader = websocket.Upgrader{
 // Il reçoit maintenant en paramètres sessionService et userService pour récupérer le nom d'utilisateur.
 func WebsocketHandler(hub *utils.Hub, sessionService *services.SessionService, userService *services.UserService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Upgrade de la connexion HTTP
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			ErrorHandler(w, r, http.StatusInternalServerError, err.Error())
-			return
-		}
-		// Récupérer le nom d'utilisateur depuis la session
 		user := getUsernameFromRequest(r, sessionService, userService)
 		if user == nil {
-			conn.Close()
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		// Ajout de la connexion au hub et diffusion de la liste mise à jour
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+
+		// Ajout de la connexion au hub
 		hub.AddClient(conn, user)
 		hub.BroadcastUsers()
 
-		// Boucle de lecture pour maintenir la connexion ouverte
-		for {
-			_, _, err := conn.ReadMessage()
-			if err != nil {
-				break
-			}
-		}
+		// Gérer les messages WebSocket
+		go func() {
+			defer func() {
+				// Déconnexion de l'utilisateur
+				hub.RemoveClient(conn)
+				hub.BroadcastUsers()
+				conn.Close()
+			}()
 
-		// À la déconnexion, retirer la connexion du hub et diffuser la nouvelle liste
-		hub.RemoveClient(conn)
-		hub.BroadcastUsers()
+			for {
+				var msg struct {
+					Type       string `json:"type"`
+					ReceiverID string `json:"receiveruuid"`
+					Content    string `json:"content"`
+				}
+				err := conn.ReadJSON(&msg)
+				if err != nil {
+					break
+				}
+
+				if msg.Type == "message" {
+					// Enregistrer le message dans la base de données
+					message, err := utils.SendMessage(user.UserId, msg.ReceiverID, msg.Content)
+					if err != nil {
+						log.Println("Failed to save message:", err)
+						continue
+					}
+
+					// Diffuser le message au destinataire
+					hub.BroadcastMessage(msg.ReceiverID, message)
+				}
+			}
+		}()
 	}
 }
 
@@ -56,15 +77,23 @@ func getUsernameFromRequest(r *http.Request, sessionService *services.SessionSer
 	if err != nil {
 		return nil
 	}
-	// Récupérer la session associée au token
+
+	// Récupérer la session associée
 	session, err := sessionService.GetSessionByToken(cookie.Value)
-	if err != nil {
+	if err != nil || session == nil {
 		return nil
 	}
-	// Récupérer l'utilisateur via son ID présent dans la session
+
+	// Vérifie si l'UserID est bien présent
+	if session.UserId.String() == "" {
+		return nil
+	}
+
+	// Vérifie si l'utilisateur existe dans la base de données
 	user, err := userService.GetUsernameAndAgeAndGenderByUUID(session.UserId.String())
-	if err != nil {
+	if err != nil || user == nil {
 		return nil
 	}
+
 	return user
 }

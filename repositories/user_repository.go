@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"forum/models"
 	"time"
@@ -85,4 +86,23 @@ func (ur *UserRepository) GetUserByUUID(userID string) (string, error) {
 		return "", err
 	}
 	return user, nil
+}
+
+func (ur *UserRepository) GetUsernameAndAgeAndGenderByUUID(uuid string) (*models.UserList, error) {
+	if uuid == "" {
+		return nil, errors.New("UUID vide")
+	}
+
+	var user models.UserList
+	query := `SELECT uuid, user_name, age, gender FROM users WHERE uuid = ?`
+	err := ur.DB.QueryRow(query, uuid).Scan(&user.UserId, &user.Username, &user.Age, &user.Gender)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Pas d'erreur fatale, juste aucun résultat
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

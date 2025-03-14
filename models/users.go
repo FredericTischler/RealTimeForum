@@ -39,6 +39,7 @@ type GetUserResponse struct {
 }
 
 type UserList struct {
+	UserId   string
 	Username string
 	Age      int
 	Gender   string
