@@ -118,12 +118,14 @@ function updateUIAfterLogin() {
             <label for="userGender">Gender :</label>
             <select id="userGender" name="gender">
               <option value="">Tous</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <div class="filter-group">
+            <label for="userAge">Age :</label>
+            <input type="number" id="userAge" name="userage" placeholder="Search by age">
             <label for="userName">Username :</label>
             <input type="text" id="userName" name="username" placeholder="Search by username">
           </div>
@@ -132,6 +134,17 @@ function updateUIAfterLogin() {
       </section>
       <section id="usersList"></section>
     `;
+    }
+
+    const userFiltersForm = document.getElementById("userFiltersForm");
+    if (userFiltersForm) {
+        userFiltersForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const username = document.getElementById("userName").value.trim();
+            const gender = document.getElementById("userGender").value;
+            const age = document.getElementById("userAge").value;
+            filterUsers(username, gender, age);
+        });
     }
 
     // Affichage du contenu principal (les aside et la section postsSection restent dans le HTML)
@@ -158,8 +171,8 @@ function updateUIAfterLogin() {
                 html += `
               <li>
                 <span class="username">${user.Username}</span>
-                <span class="age">${user.Age}</span>
-                <span class="gender">${user.Gender}</span>
+                <span class="gender" style="display: none;">${user.Gender}</span>
+                <span class="age" style="display: none;">${user.Age}</span>
               </li>`;
             });
             html += "</ul>";
@@ -176,6 +189,23 @@ function updateUIAfterLogin() {
     ws.onclose = () => {
         console.log("Connexion WebSocket fermée");
     };
+}
+
+function filterUsers(username, gender, age) {
+    const usersListSection = document.getElementById("usersList");
+    if (usersListSection) {
+        const users = Array.from(usersListSection.querySelectorAll("li"));
+        users.forEach(user => {
+            const userUsername = user.querySelector(".username").textContent;
+            const userGender = user.querySelector(".gender").textContent;
+            const userAge = user.querySelector(".age").textContent;
+            const shouldDisplay = 
+                (username === "" || userUsername.includes(username)) &&
+                (gender === "" || userGender === gender) && 
+                (age === "" || userAge === age);
+            user.style.display = shouldDisplay ? "block" : "none";
+        });
+    }
 }
 
 function updateUIAfterLogout() {
