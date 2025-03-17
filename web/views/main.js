@@ -145,13 +145,13 @@ function updateUIAfterLogin() {
             const age = document.getElementById("userAge").value;
             filterUsers(username, gender, age);
         });
-    }
+    };
 
     // Affichage du contenu principal (les aside et la section postsSection restent dans le HTML)
     const contentContainer = document.querySelector(".content-container");
     if (contentContainer) {
         contentContainer.style.display = "flex";
-    }
+    };
 
     // Appel à la fonction d'affichage des posts
     displayPosts();
@@ -180,8 +180,6 @@ function updateUIAfterLogin() {
         }
     };
 
-
-
     ws.onerror = (error) => {
         console.error("Erreur WebSocket :", error);
     };
@@ -203,6 +201,7 @@ function filterUsers(username, gender, age) {
                 (username === "" || userUsername.includes(username)) &&
                 (gender === "" || userGender === gender) && 
                 (age === "" || userAge === age);
+            user.style = "text-align: center;"
             user.style.display = shouldDisplay ? "block" : "none";
         });
     }
