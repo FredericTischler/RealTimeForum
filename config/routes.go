@@ -42,8 +42,10 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
 	mux.HandleFunc("/message", handlers.MessageHandler)
 	mux.HandleFunc("/message/{id}", handlers.GetMessageHandler)
-	mux.HandleFunc("/users", handlers.GetUsersHandler)
-	mux.HandleFunc("/users/{id}", handlers.GetUsersHandler)
+	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetUsersHandler(w, r, userService)
+	})
+	mux.HandleFunc("/users/{id}", handlers.GetUsersByIdHandler)
 
 	// Création du hub pour les WebSockets et ajout de la route dédiée
 	hub := utils.NewHub()

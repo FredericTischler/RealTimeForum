@@ -2,12 +2,15 @@ import { PostForm } from "./post_form.js";
 import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
 
-// Fonction qui interroge l'endpoint d'authentification
+// Pour stocker les IDs des utilisateurs en ligne
+let onlineUserIds = new Set();
+// Pour conserver les références aux éléments DOM de chaque utilisateur
+let userElements = {};
+
+// Fonction d'authentification (inchangée)
 async function checkAuthStatus() {
     try {
-        const response = await fetch("/auth/status", {
-            credentials: "include"
-        });
+        const response = await fetch("/auth/status", { credentials: "include" });
         if (response.ok) {
             const data = await response.json();
             if (data.authenticated) {
@@ -25,7 +28,7 @@ async function checkAuthStatus() {
 }
 
 function updateUIAfterLogin() {
-    // Injection dynamique du menu déroulant des catégories dans le header
+    // Injection dynamique du menu des catégories et de la search bar
     const categoriesDiv = document.getElementById("categories");
     if (categoriesDiv) {
         categoriesDiv.innerHTML = `
@@ -39,8 +42,6 @@ function updateUIAfterLogin() {
       </select>
     `;
     }
-
-    // Injection dynamique de la search bar dans le header
     const searchbarDiv = document.getElementById("searchbar");
     if (searchbarDiv) {
         searchbarDiv.innerHTML = `
@@ -49,16 +50,13 @@ function updateUIAfterLogin() {
         <button type="submit">Search</button>
       </form>
     `;
-
         const searchForm = document.getElementById("searchForm");
         searchForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            // Récupération des valeurs
             const keyword = document.getElementById("searchInput").value.trim();
             const category = document.getElementById("categoryMenu").value;
             updateFilters(category, keyword);
         });
-
     }
 
     // Nettoyage des zones d'authentification
@@ -71,11 +69,11 @@ function updateUIAfterLogin() {
     const logoutButton = document.createElement("button");
     logoutButton.id = "logoutBtn";
     logoutButton.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#BB86FC" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
-      <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
-      <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-    </svg>
-  `;
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#BB86FC" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
+        <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+      </svg>
+    `;
     logoutButton.addEventListener("click", async () => {
         try {
             const response = await fetch("/logout", { method: "POST", credentials: "include" });
@@ -109,6 +107,7 @@ function updateUIAfterLogin() {
         authSection.style.display = "none";
     }
 
+    // Configuration de la sidebar des utilisateurs
     const usersSidebar = document.getElementById("usersSidebar");
     if (usersSidebar) {
         usersSidebar.innerHTML = `
@@ -145,77 +144,34 @@ function updateUIAfterLogin() {
             const age = document.getElementById("userAge").value;
             filterUsers(username, gender, age);
         });
-    };
+    }
 
-    // Affichage du contenu principal (les aside et la section postsSection restent dans le HTML)
+    // Affichage du contenu principal
     const contentContainer = document.querySelector(".content-container");
     if (contentContainer) {
         contentContainer.style.display = "flex";
-    };
+    }
 
-    // Appel à la fonction d'affichage des posts
     displayPosts();
-
-    const ws = new WebSocket("ws://localhost:8443/ws");
-
-    ws.onopen = () => {
-        console.log("Connexion WebSocket établie");
-    };
-
-    ws.onmessage = (event) => {
-        const onlineUsers = JSON.parse(event.data);
-        const usersListSection = document.getElementById("usersList");
-        
-        // Récupération de l'utilisateur connecté
-        fetch("/auth/status", { credentials: "include" })
-            .then(response => response.json())
-            .then(authData => {
-                if (!authData.authenticated) return;
-                const currentUser = authData.username; // Nom d'utilisateur connecté
-                if (usersListSection) {
-                    let html = "<ul>";
-                    onlineUsers.forEach(user => {
-                        if (user.Username !== currentUser) { // Exclure l'utilisateur connecté
-                            html += `
-                              <li>
-                                <span class="username">${user.Username}</span>
-                                <span class="age">${user.Age}</span>
-                                <span class="gender">${user.Gender}</span>
-                              </li>`;
-                        }
-                    });
-                    html += "</ul>";
-                    usersListSection.innerHTML = html;
-                }
-            })
-            .catch(error => console.error("Erreur lors de la récupération de l'utilisateur connecté:", error));
-    };
-
-    ws.onerror = (error) => {
-        console.error("Erreur WebSocket :", error);
-    };
-
-    ws.onclose = () => {
-        console.log("Connexion WebSocket fermée");
-    };
+    fetchUsers().then(() => {
+        setupWebSocket();
+    });
 }
 
 function filterUsers(username, gender, age) {
-    const usersListSection = document.getElementById("usersList");
-    if (usersListSection) {
-        const users = Array.from(usersListSection.querySelectorAll("li"));
-        users.forEach(user => {
-            const userUsername = user.querySelector(".username").textContent;
-            const userGender = user.querySelector(".gender").textContent;
-            const userAge = user.querySelector(".age").textContent;
-            const shouldDisplay = 
-                (username === "" || userUsername.includes(username)) &&
-                (gender === "" || userGender === gender) && 
-                (age === "" || userAge === age);
-            user.style.display = shouldDisplay ? "flex" : "none";
-        });
-    }
+    const userCards = Array.from(document.querySelectorAll(".user-card"));
+    userCards.forEach(card => {
+        const cardUsername = card.dataset.username.toLowerCase();
+        const cardGender = card.dataset.gender.toLowerCase();
+        const cardAge = card.dataset.age; // On suppose que l'age est stocké en chaîne
+
+        const matchesUsername = username === "" || cardUsername.includes(username.toLowerCase());
+        const matchesGender = gender === "" || cardGender === gender.toLowerCase();
+        const matchesAge = age === "" || cardAge === age;
+        card.style.display = (matchesUsername && matchesGender && matchesAge) ? "flex" : "none";
+    });
 }
+
 
 function updateUIAfterLogout() {
     const contentContainer = document.getElementById("contentContainer");
@@ -226,12 +182,94 @@ function updateUIAfterLogout() {
     if (authSection) {
         authSection.style.display = "block";
     }
-    const usersSideBar = document.getElementById("usersSidebar")
-    usersSideBar.style.display = "none";
-    displayLoginForm(); // Affiche le formulaire de connexion
+    const usersSideBar = document.getElementById("usersSidebar");
+    if (usersSideBar) {
+        usersSideBar.style.display = "none";
+    }
+    displayLoginForm();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
 });
 
+async function fetchUsers() {
+    try {
+        const response = await fetch("/users", { credentials: "include" });
+        if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des utilisateurs");
+        }
+        const users = await response.json();
+        updateUsersList(users);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function updateUsersList(users) {
+    const userListContainer = document.getElementById("usersList");
+    if (!userListContainer) return;
+
+    userListContainer.innerHTML = "";
+    userElements = {}; // réinitialiser les références
+
+    users.forEach(user => {
+        const userCard = document.createElement("div");
+        userCard.classList.add("user-card");
+
+        userCard.dataset.username = user.Username;
+        userCard.dataset.gender = user.Gender;
+        userCard.dataset.age = user.Age;
+
+        const avatar = document.createElement("div");
+        avatar.classList.add("user-avatar");
+        avatar.textContent = user.Username.charAt(0).toUpperCase();
+
+        const userInfo = document.createElement("div");
+        userInfo.classList.add("user-info");
+        // Utilise onlineUserIds pour déterminer le statut initial
+        const isOnline = onlineUserIds.has(user.UserId);
+        userInfo.innerHTML = `<strong>${user.Username}</strong><br><span class="status">${isOnline ? "Online" : "Offline"}</span>`;
+
+        const statusIndicator = document.createElement("div");
+        statusIndicator.classList.add("status-indicator", isOnline ? "online" : "offline");
+
+        userCard.appendChild(avatar);
+        userCard.appendChild(userInfo);
+        userCard.appendChild(statusIndicator);
+        userListContainer.appendChild(userCard);
+
+        // Stocke les références dans userElements pour mises à jour ultérieures
+        userElements[user.UserId] = {
+            statusText: userInfo.querySelector(".status"),
+            indicator: statusIndicator
+        };
+
+    });
+}
+
+function setupWebSocket() {
+    const ws = new WebSocket("ws://localhost:8443/ws");
+
+    ws.onmessage = (event) => {
+        // Supposons que le serveur envoie un tableau d'IDs (strings) des utilisateurs en ligne
+        const data = JSON.parse(event.data);
+        onlineUserIds = new Set(data.map(item => item.UserId));
+        // Met à jour le DOM pour chaque utilisateur présent dans userElements
+        for (const userId in userElements) {
+            if (onlineUserIds.has(userId)) {
+                userElements[userId].statusText.textContent = "Online";
+                userElements[userId].indicator.classList.remove("offline");
+                userElements[userId].indicator.classList.add("online");
+            } else {
+                userElements[userId].statusText.textContent = "Offline";
+                userElements[userId].indicator.classList.remove("online");
+                userElements[userId].indicator.classList.add("offline");
+            }
+        }
+    };
+
+    ws.onopen = () => console.log("WebSocket connecté");
+    ws.onerror = (error) => console.error("WebSocket erreur :", error);
+    ws.onclose = () => console.log("WebSocket fermé");
+}

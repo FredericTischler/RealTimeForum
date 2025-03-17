@@ -14,6 +14,25 @@ type UserRepository struct {
 	DB *sql.DB
 }
 
+func (ur *UserRepository) GetUsers() (*[]models.UserList, error) {
+	var users []models.UserList
+	query := `SELECT uuid, user_name, age, gender FROM users`
+	result, err := ur.DB.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch users: %v", err)
+	}
+	for result.Next() {
+		var user models.UserList
+		result.Scan(
+			&user.UserId,
+			&user.Username,
+			&user.Age,
+			&user.Gender)
+		users = append(users, user)
+	}
+	return &users, nil
+}
+
 func (ur *UserRepository) InsertUser(userName, email, password, firstName, lastName, gender string, age int, userUUID uuid.UUID) (int64, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
@@ -89,8 +108,9 @@ func (ur *UserRepository) GetUserByUUID(userID string) (string, error) {
 
 func (ur *UserRepository) GetUsernameAndAgeAndGenderByUUID(userID string) (*models.UserList, error) {
 	var user models.UserList
-	query := `SELECT user_name, age, gender FROM users WHERE uuid = ?`
+	query := `SELECT uuid, user_name, age, gender FROM users WHERE uuid = ?`
 	err := ur.DB.QueryRow(query, userID).Scan(
+		&user.UserId,
 		&user.Username,
 		&user.Age,
 		&user.Gender,

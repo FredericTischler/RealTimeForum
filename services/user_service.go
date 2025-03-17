@@ -11,6 +11,10 @@ type UserService struct {
 	UserRepo *repositories.UserRepository
 }
 
+func (us *UserService) GetUsers() (*[]models.UserList, error) {
+	return us.UserRepo.GetUsers()
+}
+
 func (us *UserService) InsertUser(userName, email, password, firstName, lastName, gender string, age int, userUUID uuid.UUID) (int64, error) {
 	return us.UserRepo.InsertUser(userName, email, password, firstName, lastName, gender, age, userUUID)
 }
