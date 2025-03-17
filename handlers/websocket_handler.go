@@ -4,8 +4,9 @@ import (
 	"forum/models"
 	"forum/services"
 	"forum/utils"
-	"github.com/gorilla/websocket"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 // Configuration de l'upgrader pour autoriser les connexions depuis n'importe quelle origine

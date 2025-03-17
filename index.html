@@ -9,6 +9,8 @@
     <link href="web/static/post_form.css" rel="stylesheet">
     <link href="web/static/post_display.css" rel="stylesheet">
     <link href="web/static/error_modal.css" rel="stylesheet">
+    <link href="web/static/message_form.css" rel="stylesheet">
+
     <title>Urban Vibe</title>
 </head>
 <body>
@@ -48,11 +50,27 @@
     </div>
 </div>
 
+<!-- Modal de messagerie -->
+<div id="messageModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2><span id="recipientUsername"></span></h2>
+        <div id="messageContainer">
+            <!-- Les messages seront affichés ici -->
+        </div>
+        <div id="messageInputContainer">
+            <input type="text" id="messageInput" placeholder="Write your message..." />
+            <button id="sendMessageButton">Send</button>
+        </div>
+    </div>
+</div>
+
 <!-- Conteneur pour le formulaire de création/modification de post -->
 <div class="modal post-form-container" id="post-form-container"></div>
 <div id="errorModalContainer"></div>
 
 <!-- Scripts en mode module -->
+
 <script src="web/views/auth_form.js" type="module"></script>
 <script src="web/views/post_form.js" type="module"></script>
 <script src="web/views/main.js" type="module"></script>
