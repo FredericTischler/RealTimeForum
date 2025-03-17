@@ -29,7 +29,7 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 		}
 	})
 	mux.HandleFunc("/auth/status", func(w http.ResponseWriter, r *http.Request) {
-		handlers.AuthStatusHandler(w, r, sessionService)
+		handlers.AuthStatusHandler(w, r, sessionService, userService)
 	})
 	mux.HandleFunc("/posts/{id}", handlers.GetPostsByIdHandler)
 	mux.HandleFunc("/posts/comment/{id}", func(w http.ResponseWriter, r *http.Request) {

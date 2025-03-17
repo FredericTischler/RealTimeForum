@@ -165,19 +165,30 @@ function updateUIAfterLogin() {
     ws.onmessage = (event) => {
         const onlineUsers = JSON.parse(event.data);
         const usersListSection = document.getElementById("usersList");
-        if (usersListSection) {
-            let html = "<ul>";
-            onlineUsers.forEach(user => {
-                html += `
-              <li>
-                <span class="username">${user.Username}</span>
-                <span class="age">${user.Age}</span>
-                <span class="gender">${user.Gender}</span>
-              </li>`;
-            });
-            html += "</ul>";
-            usersListSection.innerHTML = html;
-        }
+        
+        // Récupération de l'utilisateur connecté
+        fetch("/auth/status", { credentials: "include" })
+            .then(response => response.json())
+            .then(authData => {
+                if (!authData.authenticated) return;
+                const currentUser = authData.username; // Nom d'utilisateur connecté
+                if (usersListSection) {
+                    let html = "<ul>";
+                    onlineUsers.forEach(user => {
+                        if (user.Username !== currentUser) { // Exclure l'utilisateur connecté
+                            html += `
+                              <li>
+                                <span class="username">${user.Username}</span>
+                                <span class="age">${user.Age}</span>
+                                <span class="gender">${user.Gender}</span>
+                              </li>`;
+                        }
+                    });
+                    html += "</ul>";
+                    usersListSection.innerHTML = html;
+                }
+            })
+            .catch(error => console.error("Erreur lors de la récupération de l'utilisateur connecté:", error));
     };
 
     ws.onerror = (error) => {

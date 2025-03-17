@@ -112,7 +112,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 	}
 }
 
-func AuthStatusHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService) {
+func AuthStatusHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService, userService *services.UserService) {
 	// Récupérer le cookie "session_token"
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
@@ -135,9 +135,12 @@ func AuthStatusHandler(w http.ResponseWriter, r *http.Request, sessionService *s
 
 	// Si la session est valide, renvoyer un JSON indiquant que l'utilisateur est authentifié
 	w.Header().Set("Content-Type", "application/json")
+
+	name, _ := userService.GetUserByUUID(session.UserId.String())
 	err = json.NewEncoder(w).Encode(map[string]interface{}{
 		"authenticated": true,
 		"userId":        session.UserId, // Assurez-vous que le champ s'appelle bien UserID dans votre modèle de Session
+		"username":      name,
 	})
 	if err != nil {
 		return
