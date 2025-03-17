@@ -171,8 +171,8 @@ function updateUIAfterLogin() {
                 html += `
               <li>
                 <span class="username">${user.Username}</span>
-                <span class="gender" style="display: none;">${user.Gender}</span>
-                <span class="age" style="display: none;">${user.Age}</span>
+                <span class="age">${user.Age}</span>
+                <span class="gender">${user.Gender}</span>
               </li>`;
             });
             html += "</ul>";
@@ -201,8 +201,7 @@ function filterUsers(username, gender, age) {
                 (username === "" || userUsername.includes(username)) &&
                 (gender === "" || userGender === gender) && 
                 (age === "" || userAge === age);
-            user.style = "text-align: center;"
-            user.style.display = shouldDisplay ? "block" : "none";
+            user.style.display = shouldDisplay ? "flex" : "none";
         });
     }
 }
