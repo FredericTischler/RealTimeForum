@@ -10,14 +10,16 @@ import (
 
 // Hub central pour gérer les connexions
 type Hub struct {
-	clients map[*websocket.Conn]*models.UserList // Vous pouvez associer chaque connexion à un identifiant utilisateur
-	mu      sync.Mutex
+	clients   map[*websocket.Conn]*models.UserList // Vous pouvez associer chaque connexion à un identifiant utilisateur
+	broadcast chan models.Message
+	mu        sync.Mutex
 }
 
 // NewHub initialise un hub
 func NewHub() *Hub {
 	return &Hub{
-		clients: make(map[*websocket.Conn]*models.UserList),
+		clients:   make(map[*websocket.Conn]*models.UserList),
+		broadcast: make(chan models.Message),
 	}
 }
 
@@ -58,5 +60,36 @@ func (h *Hub) BroadcastUsers() {
 			client.Close()
 			delete(h.clients, client)
 		}
+	}
+}
+
+func (h *Hub) BroadcastMessage(receiverID string, message *models.Message) {
+	for conn, user := range h.clients {
+		if user.UserId == receiverID {
+			err := conn.WriteJSON(map[string]interface{}{
+				"type":    "message",
+				"message": message,
+			})
+			if err != nil {
+				conn.Close()
+				delete(h.clients, conn)
+			}
+		}
+	}
+}
+
+// Run démarre la boucle de diffusion des messages
+func (h *Hub) Run() {
+	for {
+		message := <-h.broadcast
+		h.mu.Lock()
+		for client := range h.clients {
+			err := client.WriteJSON(message)
+			if err != nil {
+				client.Close()
+				delete(h.clients, client)
+			}
+		}
+		h.mu.Unlock()
 	}
 }

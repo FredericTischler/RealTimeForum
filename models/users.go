@@ -39,7 +39,7 @@ type GetUserResponse struct {
 }
 
 type UserList struct {
-	UserId   uuid.UUID
+	UserId   string
 	Username string
 	Age      int
 	Gender   string

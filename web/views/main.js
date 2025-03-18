@@ -213,39 +213,51 @@ function updateUsersList(users) {
     userListContainer.innerHTML = "";
     userElements = {}; // réinitialiser les références
 
-    users.forEach(user => {
-        const userCard = document.createElement("div");
-        userCard.classList.add("user-card");
+    // Récupération de l'utilisateur connecté
+    fetch("/auth/status", { credentials: "include" })
+    .then(response => response.json())
+    .then(authData => {
+        if (!authData.authenticated) return;
+        const currentUserID = authData.userId;
+        
+        users.forEach(user => {
+            if (user.UserId !== currentUserID) {
+            const userCard = document.createElement("div");
+            userCard.classList.add("user-card");
 
-        userCard.dataset.username = user.Username;
-        userCard.dataset.gender = user.Gender;
-        userCard.dataset.age = user.Age;
+            userCard.dataset.username = user.Username;
+            userCard.dataset.gender = user.Gender;
+            userCard.dataset.age = user.Age;
 
-        const avatar = document.createElement("div");
-        avatar.classList.add("user-avatar");
-        avatar.textContent = user.Username.charAt(0).toUpperCase();
+            const avatar = document.createElement("div");
+            avatar.classList.add("user-avatar");
+            avatar.textContent = user.Username.charAt(0).toUpperCase();
 
-        const userInfo = document.createElement("div");
-        userInfo.classList.add("user-info");
-        // Utilise onlineUserIds pour déterminer le statut initial
-        const isOnline = onlineUserIds.has(user.UserId);
-        userInfo.innerHTML = `<strong>${user.Username}</strong><br><span class="status">${isOnline ? "Online" : "Offline"}</span>`;
+            const userInfo = document.createElement("div");
+            userInfo.classList.add("user-info");
+            // Utilise onlineUserIds pour déterminer le statut initial
+            const isOnline = onlineUserIds.has(user.UserId);
+            console.log(user.UserId)
+            userInfo.innerHTML = `<strong>${user.Username}</strong><br><span class="status">${isOnline ? "Online" : "Offline"}</span>`;
 
-        const statusIndicator = document.createElement("div");
-        statusIndicator.classList.add("status-indicator", isOnline ? "online" : "offline");
+            const statusIndicator = document.createElement("div");
+            statusIndicator.classList.add("status-indicator", isOnline ? "online" : "offline");
 
-        userCard.appendChild(avatar);
-        userCard.appendChild(userInfo);
-        userCard.appendChild(statusIndicator);
-        userListContainer.appendChild(userCard);
+            userCard.appendChild(avatar);
+            userCard.appendChild(userInfo);
+            userCard.appendChild(statusIndicator);
+            userListContainer.appendChild(userCard);
 
-        // Stocke les références dans userElements pour mises à jour ultérieures
-        userElements[user.UserId] = {
-            statusText: userInfo.querySelector(".status"),
-            indicator: statusIndicator
-        };
+            // Stocke les références dans userElements pour mises à jour ultérieures
+            userElements[user.UserId] = {
+                statusText: userInfo.querySelector(".status"),
+                indicator: statusIndicator
+            };
+        }
+        })
+            .catch(error => console.error("Erreur lors de la récupération de l'utilisateur connecté:", error));
 
-    });
+        });
 }
 
 function setupWebSocket() {
@@ -254,19 +266,25 @@ function setupWebSocket() {
     ws.onmessage = (event) => {
         // Supposons que le serveur envoie un tableau d'IDs (strings) des utilisateurs en ligne
         const data = JSON.parse(event.data);
+        
         onlineUserIds = new Set(data.map(item => item.UserId));
         // Met à jour le DOM pour chaque utilisateur présent dans userElements
         for (const userId in userElements) {
-            if (onlineUserIds.has(userId)) {
-                userElements[userId].statusText.textContent = "Online";
-                userElements[userId].indicator.classList.remove("offline");
-                userElements[userId].indicator.classList.add("online");
-            } else {
-                userElements[userId].statusText.textContent = "Offline";
-                userElements[userId].indicator.classList.remove("online");
-                userElements[userId].indicator.classList.add("offline");
-            }
+            
+                    userElements[userId].indicator.classList.remove("offline");
+                    userElements[userId].indicator.classList.remove("online");
+                if (onlineUserIds.has(userId)) {
+    
+                    userElements[userId].statusText.textContent = "Online";
+                    userElements[userId].indicator.classList.remove("offline");
+                    userElements[userId].indicator.classList.add("online");
+                } else {
+                    userElements[userId].statusText.textContent = "Offline";
+                    userElements[userId].indicator.classList.remove("online");
+                    userElements[userId].indicator.classList.add("offline");
+                }
         }
+    
     };
 
     ws.onopen = () => console.log("WebSocket connecté");
