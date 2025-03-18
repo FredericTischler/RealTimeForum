@@ -113,22 +113,24 @@ function updateUIAfterLogin() {
         usersSidebar.innerHTML = `
       <section id="userFilters" class="filters">
         <form id="userFiltersForm">
-          <div class="filter-group">
-            <label for="userGender">Gender :</label>
-            <select id="userGender" name="gender">
-              <option value="">Tous</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="userAge">Age :</label>
-            <input type="number" id="userAge" name="userage" placeholder="Search by age">
-            <label for="userName">Username :</label>
-            <input type="text" id="userName" name="username" placeholder="Search by username">
-          </div>
-          <button type="submit">Filter</button>
+            <div class="filter-group">
+                <label for="userGender">Gender :</label>
+                <select id="userGender" name="gender">
+                <option value="">Tous</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="userAge">Age :</label>
+                <input type="number" id="userAge" name="userage" placeholder="Search by age">
+            </div>
+            <div class="filter-group">
+                <label for="userName">Username :</label>
+                <input type="text" id="userName" name="username" placeholder="Search by username">
+            </div>
+            <button type="submit">Filter</button>
         </form>
       </section>
       <section id="usersList"></section>
