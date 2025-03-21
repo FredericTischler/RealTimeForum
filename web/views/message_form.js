@@ -23,19 +23,43 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
         appendMessage(msg.from, msg.message, myUserId);
     };
 
-    document.getElementById("sendBtn").addEventListener("click", () => {
+    
+    document.getElementById("sendBtn").addEventListener("click", async () => {
         const input = document.getElementById("chatInput");
         const message = input.value.trim();
+    
         if (message !== "") {
-            ws.send(JSON.stringify({ to: targetUserId, message }));
-            appendMessage(myUserId, message, myUserId);
-            input.value = "";
+            try {
+                // Envoyer le message au serveur
+                const response = await fetch("/message/insert", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include", // Inclure les cookies pour l'authentification
+                    body: JSON.stringify({
+                        receiverId: targetUserId, // ID du destinataire
+                        content: message,        // Contenu du message
+                    }),
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Erreur lors de l'envoi du message");
+                }
+
+                ws.send(JSON.stringify({ to: targetUserId, message }));
+                appendMessage(myUserId, message, myUserId);
+
+            } catch (error) {
+                console.error("Erreur lors de l'envoi du message :", error);
+                alert("Erreur lors de l'envoi du message");
+            }
         }
     });
 
     // Chargement initial des 10 derniers messages
     offset = 0;
-    await loadPreviousMessages(targetUserId);
+    await loadPreviousMessages(targetUserId, myUserId);
 
     // Scroll pour charger plus
     const messagesDiv = document.getElementById("messages");
@@ -47,7 +71,7 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
 }
 
 // Fonction pour charger les messages précédents
-async function loadPreviousMessages(targetUserId) {
+async function loadPreviousMessages(targetUserId, myUserId) {
     try {
         const response = await fetch(`/message?with=${targetUserId}&offset=${offset}`, {
             credentials: "include"
@@ -62,7 +86,8 @@ async function loadPreviousMessages(targetUserId) {
 
         const container = document.getElementById("messages");
         messages.reverse().forEach(msg => {
-            appendMessage(msg.from_user, msg.message, msg.current_user_id);
+            console.log(msg.message)
+            appendMessage(msg.SenderId, msg.Content, myUserId);
         });
 
         offset += 10;
@@ -77,3 +102,4 @@ function appendMessage(senderId, message, currentUserId) {
     messageEl.innerHTML = `<strong>${senderId === currentUserId ? "Me" : "Them"}:</strong> ${message}`;
     messagesDiv.prepend(messageEl);
 }
+

@@ -2,7 +2,11 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 	"forum/models"
+	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 type MessageRepository struct {
@@ -35,4 +39,17 @@ func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int)
 	}
 
 	return &messages, nil
+}
+
+func (mr *MessageRepository) InsertMessage(message *models.Message) error {
+	newUuid, _ := uuid.NewV4()
+	message.MessageId = newUuid.String()
+	message.SentAt = time.Now()
+
+	query := `INSERT INTO messages (uuid, sender_id, receiver_id, content, created_at) VALUES (?, ?, ?, ?, ?)`
+	_, err := mr.DB.Exec(query, message.MessageId, message.SenderId, message.ReceiverId, message.Content, message.SentAt)
+	if err != nil {
+		return fmt.Errorf("failed to insert message: %v", err)
+	}
+	return nil
 }

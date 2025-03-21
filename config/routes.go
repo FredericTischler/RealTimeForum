@@ -43,6 +43,9 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 	mux.HandleFunc("/message", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetPrivateMessageHandler(w, r, sessionService, messageService)
 	})
+	mux.HandleFunc("/message/insert", func(w http.ResponseWriter, r *http.Request) {
+		handlers.InsertMessageHandler(w, r, sessionService, messageService)
+	})
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetUsersHandler(w, r, userService)
 	})

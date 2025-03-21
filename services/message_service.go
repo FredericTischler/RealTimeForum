@@ -12,3 +12,7 @@ type MessageService struct {
 func (ms *MessageService) GetMessage(userId, withUserId string, offset int) (*[]models.Message, error) {
 	return ms.MessageRepo.LoadMessages(userId, withUserId, offset)
 }
+
+func (ms *MessageService) InsertMessage(message *models.Message) error {
+	return ms.MessageRepo.InsertMessage(message)
+}
