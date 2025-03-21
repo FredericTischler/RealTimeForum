@@ -36,8 +36,11 @@ func main() {
 	commentRepo := &repositories.CommentsRepositories{DB: db}
 	commentService := &services.CommentsService{CommentsRepo: commentRepo}
 
+	messageRepo := &repositories.MessageRepository{DB: db}
+	messageService := &services.MessageService{MessageRepo: messageRepo}
+
 	// Initialiser les routes
-	config.InitializeRoutes(mux, userService, authService, postService, commentService, sessionService)
+	config.InitializeRoutes(mux, userService, authService, postService, commentService, sessionService, messageService)
 
 	rateLimitedHandler := middleware.SessionRateLimiter(sessionService, mux)
 

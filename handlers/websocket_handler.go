@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"forum/models"
 	"forum/services"
 	"forum/utils"
 	"net/http"
 
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -68,4 +70,49 @@ func getUsernameFromRequest(r *http.Request, sessionService *services.SessionSer
 		return nil
 	}
 	return user
+}
+
+var privateConnections = make(map[uuid.UUID]*websocket.Conn)
+
+func PrivateMessageHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService) {
+	// Récupérer le cookie de session
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		ErrorHandler(w, r, http.StatusUnauthorized, err.Error())
+	}
+	// Récupérer la session associée au token
+	session, err := sessionService.GetSessionByToken(cookie.Value)
+	if err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError, err.Error())
+	}
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		ErrorHandler(w, r, http.StatusInternalServerError, err.Error())
+	}
+
+	privateConnections[session.UserId] = conn
+	defer conn.Close()
+
+	for {
+		var msg struct {
+			To      uuid.UUID `json:"to"`
+			Message string    `json:"message"`
+		}
+		err := conn.ReadJSON(&msg)
+		if err != nil {
+			break
+		}
+
+		if receiverConn, ok := privateConnections[msg.To]; ok {
+			err = receiverConn.WriteJSON(map[string]interface{}{
+				"from":    session.UserId,
+				"message": msg.Message,
+			})
+
+			if err != nil {
+				fmt.Println("Failed to send message:", err)
+			}
+		}
+	}
 }
