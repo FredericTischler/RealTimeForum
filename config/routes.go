@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService, postsService *services.PostsService, commentService *services.CommentsService, sessionService *services.SessionService) {
+func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, authService *services.AuthService, postsService *services.PostsService, commentService *services.CommentsService, sessionService *services.SessionService, messageService *services.MessageService) {
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web/"))))
 	mux.HandleFunc("/", handlers.HomeHandler)
 
@@ -40,8 +40,12 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 		}
 	})
 	mux.HandleFunc("/posts/comments/{postid}", handlers.GetCommentsHandler)
-	mux.HandleFunc("/message", handlers.MessageHandler)
-	mux.HandleFunc("/message/{id}", handlers.GetMessageHandler)
+	// mux.HandleFunc("/message", func(w http.ResponseWriter, r *http.Request) {
+	// 	handlers.MessageHandler(w, r, messageService, sessionService)
+	// })
+	mux.HandleFunc("/message/{id}", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetMessagesHandler(w, r, messageService, sessionService)
+	})
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetUsersHandler(w, r, userService)
 	})
@@ -49,5 +53,5 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 
 	// Création du hub pour les WebSockets et ajout de la route dédiée
 	hub := utils.NewHub()
-	mux.HandleFunc("/ws", handlers.WebsocketHandler(hub, sessionService, userService))
+	mux.HandleFunc("/ws", handlers.WebsocketHandler(hub, sessionService, userService, messageService))
 }

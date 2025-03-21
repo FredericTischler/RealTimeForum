@@ -2,8 +2,9 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/gofrs/uuid"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 type ConnectionWebSocket struct {
@@ -69,8 +70,8 @@ func (d *DisconnectionWebSocket) UnmarshalJSON(data []byte) error {
 
 type NewMessageWebSocket struct {
 	Type       string    `json:"type"`
-	SenderId   uuid.UUID `json:"senderId"`
-	ReceiverId uuid.UUID `json:"receiverId"`
+	SenderId   string    `json:"senderId"`
+	ReceiverId string    `json:"receiverId"`
 	Content    string    `json:"content"`
 	SentAt     time.Time `json:"sentAt"`
 }
@@ -84,8 +85,8 @@ func (n *NewMessageWebSocket) MarshalJSON() ([]byte, error) {
 		SentAt     time.Time `json:"sentAt"`
 	}{
 		Type:       n.Type,
-		SenderId:   n.SenderId.String(),
-		ReceiverId: n.ReceiverId.String(),
+		SenderId:   n.SenderId,
+		ReceiverId: n.ReceiverId,
 		Content:    n.Content,
 		SentAt:     n.SentAt,
 	})
@@ -103,18 +104,18 @@ func (n *NewMessageWebSocket) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	n.Type = aux.Type
-	n.SenderId, _ = uuid.FromString(aux.SenderId)
-	n.ReceiverId, _ = uuid.FromString(aux.ReceiverId)
+	n.SenderId = aux.SenderId
+	n.ReceiverId = aux.ReceiverId
 	n.Content = aux.Content
 	n.SentAt = aux.SentAt
 	return nil
 }
 
 type UserTypingWebSocket struct {
-	Type       string    `json:"type"`
-	SenderId   uuid.UUID `json:"senderId"`
-	ReceiverId uuid.UUID `json:"receiverId"`
-	Typing     bool      `json:"typing"`
+	Type       string `json:"type"`
+	SenderId   string `json:"senderId"`
+	ReceiverId string `json:"receiverId"`
+	Typing     bool   `json:"typing"`
 }
 
 func (u *UserTypingWebSocket) MarshalJSON() ([]byte, error) {
@@ -125,8 +126,8 @@ func (u *UserTypingWebSocket) MarshalJSON() ([]byte, error) {
 		Typing     bool   `json:"typing"`
 	}{
 		Type:       u.Type,
-		SenderId:   u.SenderId.String(),
-		ReceiverId: u.ReceiverId.String(),
+		SenderId:   u.SenderId,
+		ReceiverId: u.ReceiverId,
 		Typing:     u.Typing,
 	})
 }
@@ -142,8 +143,8 @@ func (u *UserTypingWebSocket) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	u.Type = aux.Type
-	u.SenderId, _ = uuid.FromString(aux.SenderId)
-	u.ReceiverId, _ = uuid.FromString(aux.ReceiverId)
+	u.SenderId = aux.SenderId
+	u.ReceiverId = aux.ReceiverId
 	u.Typing = aux.Typing
 	return nil
 }
@@ -182,11 +183,11 @@ func (o *OnlineStatusWebSocket) UnmarshalJSON(data []byte) error {
 }
 
 type OldMessagesWebSocket struct {
-	Type       string    `json:"type"`
-	SenderId   uuid.UUID `json:"senderId"`
-	ReceiverId uuid.UUID `json:"receiverId"`
-	Offset     int       `json:"offset"`
-	Limit      int       `json:"limit"`
+	Type       string `json:"type"`
+	SenderId   string `json:"senderId"`
+	ReceiverId string `json:"receiverId"`
+	Offset     int    `json:"offset"`
+	Limit      int    `json:"limit"`
 }
 
 func (o *OldMessagesWebSocket) MarshalJSON() ([]byte, error) {
@@ -198,8 +199,8 @@ func (o *OldMessagesWebSocket) MarshalJSON() ([]byte, error) {
 		Limit      int    `json:"limit"`
 	}{
 		Type:       o.Type,
-		SenderId:   o.SenderId.String(),
-		ReceiverId: o.ReceiverId.String(),
+		SenderId:   o.SenderId,
+		ReceiverId: o.ReceiverId,
 		Offset:     o.Offset,
 		Limit:      o.Limit,
 	})
@@ -217,8 +218,8 @@ func (o *OldMessagesWebSocket) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	o.Type = aux.Type
-	o.SenderId, _ = uuid.FromString(aux.SenderId)
-	o.ReceiverId, _ = uuid.FromString(aux.ReceiverId)
+	o.SenderId = aux.SenderId
+	o.ReceiverId = aux.ReceiverId
 	o.Offset = aux.Offset
 	o.Limit = aux.Limit
 	return nil

@@ -1,6 +1,7 @@
 import { PostForm } from "./post_form.js";
 import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
+import { openMessageModal, displayMessage } from "./message_form.js";
 
 // Pour stocker les IDs des utilisateurs en ligne
 let onlineUserIds = new Set();
@@ -48,8 +49,8 @@ function updateUIAfterLogin() {
       <form id="searchForm">
         <input type="text" id="searchInput" placeholder="Search..." />
         <button type="submit">Search</button>
-      </form>
-    `;
+      </form>`
+      ;
         const searchForm = document.getElementById("searchForm");
         searchForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -133,8 +134,8 @@ function updateUIAfterLogin() {
             <button type="submit">Filter</button>
         </form>
       </section>
-      <section id="usersList"></section>
-    `;
+      <section id="usersList"></section>`
+      ;
     }
 
     const userFiltersForm = document.getElementById("userFiltersForm");
@@ -152,13 +153,18 @@ function updateUIAfterLogin() {
     const contentContainer = document.querySelector(".content-container");
     if (contentContainer) {
         contentContainer.style.display = "flex";
-    }
+    } 
+
+    let ws;
+    let currentUserID;
 
     displayPosts();
-    fetchUsers().then(() => {
-        setupWebSocket();
+    currentUserID = fetchUsers().then(() => {
+        ws = setupWebSocket(currentUserID);
     });
 }
+
+
 
 function filterUsers(username, gender, age) {
     const userCards = Array.from(document.querySelectorAll(".user-card"));
@@ -202,34 +208,38 @@ async function fetchUsers() {
             throw new Error("Erreur lors de la récupération des utilisateurs");
         }
         const users = await response.json();
-        updateUsersList(users);
+        return updateUsersList(users);
     } catch (error) {
         console.error(error);
     }
 }
 
+let userCard;
 function updateUsersList(users) {
     const userListContainer = document.getElementById("usersList");
     if (!userListContainer) return;
 
     userListContainer.innerHTML = "";
-    userElements = {}; // réinitialiser les références
-
+    userElements = {};
+    let currentUserID;
+    
     // Récupération de l'utilisateur connecté
     fetch("/auth/status", { credentials: "include" })
     .then(response => response.json())
     .then(authData => {
         if (!authData.authenticated) return;
-        const currentUserID = authData.userId;
+        currentUserID = authData.userId;
         
         users.forEach(user => {
             if (user.UserId !== currentUserID) {
-            const userCard = document.createElement("div");
+            userCard = document.createElement("div");
             userCard.classList.add("user-card");
 
             userCard.dataset.username = user.Username;
             userCard.dataset.gender = user.Gender;
             userCard.dataset.age = user.Age;
+            userCard.dataset.userId = user.UserId;
+
 
             const avatar = document.createElement("div");
             avatar.classList.add("user-avatar");
@@ -260,36 +270,79 @@ function updateUsersList(users) {
             .catch(error => console.error("Erreur lors de la récupération de l'utilisateur connecté:", error));
 
         });
+        return currentUserID
 }
 
-function setupWebSocket() {
+function setupWebSocket(currentUserID) {
     const ws = new WebSocket("ws://localhost:8443/ws");
 
-    ws.onmessage = (event) => {
-        // Supposons que le serveur envoie un tableau d'IDs (strings) des utilisateurs en ligne
-        const data = JSON.parse(event.data);
-        
-        onlineUserIds = new Set(data.map(item => item.UserId));
-        // Met à jour le DOM pour chaque utilisateur présent dans userElements
-        for (const userId in userElements) {
+        ws.onopen = () => {
+            console.log("WebSocket connected");
+        };
+    
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
             
-                    userElements[userId].indicator.classList.remove("offline");
-                    userElements[userId].indicator.classList.remove("online");
-                if (onlineUserIds.has(userId)) {
-    
-                    userElements[userId].statusText.textContent = "Online";
-                    userElements[userId].indicator.classList.remove("offline");
-                    userElements[userId].indicator.classList.add("online");
+            if (data.type === "message") {
+                const messageContainer = document.getElementById("messageContainer");
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message");
+                console.log("Message reçu :", data);
+                
+                if (data.message.sender_id === currentUserID) {
+                    messageElement.classList.add("sent"); // Message envoyé
+                    
                 } else {
-                    userElements[userId].statusText.textContent = "Offline";
-                    userElements[userId].indicator.classList.remove("online");
-                    userElements[userId].indicator.classList.add("offline");
+                    messageElement.classList.add("received"); // Message reçu
                 }
-        }
-    
-    };
+                displayMessage(data);
+                messageContainer.scrollTop = messageContainer.scrollHeight; // Auto-scroll
+            } else {
+                onlineUserIds = new Set(data.map(item => item.UserId));
+                // Met à jour le DOM pour chaque utilisateur présent dans userElements
+                for (const userId in userElements) {
 
-    ws.onopen = () => console.log("WebSocket connecté");
-    ws.onerror = (error) => console.error("WebSocket erreur :", error);
-    ws.onclose = () => console.log("WebSocket fermé");
+                        if (onlineUserIds.has(userId)) {
+                            userElements[userId].statusText.textContent = "Online";
+                            userElements[userId].indicator.classList.remove("offline");
+                            userElements[userId].indicator.classList.add("online");
+                        } else {
+                            userElements[userId].statusText.textContent = "Offline";
+                            userElements[userId].indicator.classList.remove("online");
+                            userElements[userId].indicator.classList.add("offline");
+                        }
+                }
+            }
+        };
+    
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+    
+        ws.onclose = () => {
+            console.log("WebSocket disconnected");
+        };
+        document.addEventListener("click", (e) => {
+            if (e.target.closest(".user-card")) {
+                const userCard = e.target.closest(".user-card");
+                const userId = userCard.dataset.userId;
+                const username = userCard.dataset.username;
+                console.log(userId)
+                openMessageModal(userId, username, ws);
+            }
+        });
+
+    return ws
 }
+
+
+
+// Fonction pour fermer le modal
+function closeMessageModal() {
+    messageModal.style.display = "none";
+}
+const messageModal = document.getElementById("messageModal");
+const closeModal = document.querySelector("#messageModal .close");
+
+// Fermer le modal lorsque l'utilisateur clique sur la croix
+closeModal.addEventListener("click", closeMessageModal);

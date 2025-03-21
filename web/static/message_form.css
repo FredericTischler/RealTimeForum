@@ -1,0 +1,103 @@
+#messageModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#messageModal .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+#messageModal .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#messageModal .close:hover,
+#messageModal .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#messageContainer {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    max-width: 70%;
+}
+
+.message.sent {
+    background: #BB86FC;
+    margin-left: auto;
+    color: black;
+}
+
+.message.received {
+    background-color: #f1f0f0;
+    margin-right: auto;
+    color: black;
+
+}
+
+#messageInputContainer {
+    display: flex;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#sendMessageButton {
+    padding: 10px 20px;
+    margin-left: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#sendMessageButton:hover {
+    background-color: #45a049;
+}
+
+.sent {
+    text-align: right;
+    background: #BB86FC;
+    color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
+.received {
+    text-align: left;
+    background: #444;
+    color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
