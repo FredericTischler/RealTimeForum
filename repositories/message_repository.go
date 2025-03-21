@@ -18,6 +18,7 @@ func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int)
 			  FROM messages 
 			  WHERE (sender_id = ? AND receiver_id = ?)
 			  OR (sender_id = ? AND receiver_id = ?)
+			  ORDER By created_at DESC
 			  LIMIT 10
 			  OFFSET ?
 			  `

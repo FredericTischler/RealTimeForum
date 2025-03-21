@@ -1,5 +1,5 @@
 .chat-box {
-    width: 300px;
+    width: 500px;
     border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -13,10 +13,9 @@
     color: #333;
 }
 
-h3 {
+h1 {
     margin: 0 0 10px;
-    font-size: 16px;
-    color: #333;
+    color: #BB86FC;
     text-align: center;
 }
 
@@ -29,6 +28,7 @@ h3 {
     border: 1px solid #ddd;
     border-radius: 5px;
     background: #f9f9f9;
+    margin: 5px;
 }
 
 #chatInput {
@@ -37,17 +37,43 @@ h3 {
     border: 1px solid #ccc;
     border-radius: 5px;
     outline: none;
+    margin: 5px;
 }
 
 #sendBtn {
-    padding: 8px 12px;
+    padding: 16px 24px;
     border: none;
-    background: #007bff;
+    background: #BB86FC;
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    margin: 5px;
 }
 
 #sendBtn:hover {
     background: #0056b3;
+}
+
+.sender {
+    text-align: right;
+    background: #BB86FC;
+    color: white;
+    margin-right: auto;
+    padding: 5px;
+    border-radius: 10px;
+}
+.receiver {
+    text-align: left;
+    background: #444;
+    color: white;
+    margin-left: auto;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.btnContainer {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    height: 100px;
 }

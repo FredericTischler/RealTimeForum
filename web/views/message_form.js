@@ -7,10 +7,12 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
     const chatModal = document.getElementById("privateChatModal");
     chatModal.innerHTML = `
         <div class="chat-box">
-            <h3>${targetUsername}</h3>
+            <h1>${targetUsername}</h1>
             <div id="messages" style="height: 300px; overflow-y: scroll; display: flex; flex-direction: column-reverse;"></div>
             <input type="text" id="chatInput" placeholder="Message...">
-            <button id="sendBtn">Send</button>
+            <div class="btnContainer">
+                <button id="sendBtn">Send</button>
+            </div>
         </div>
     `;
     document.body.appendChild(chatModal);
@@ -100,6 +102,7 @@ function appendMessage(senderId, message, currentUserId) {
     const messagesDiv = document.getElementById("messages");
     const messageEl = document.createElement("p");
     messageEl.innerHTML = `<strong>${senderId === currentUserId ? "Me" : "Them"}:</strong> ${message}`;
+    senderId === currentUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver')
     messagesDiv.prepend(messageEl);
 }
 
