@@ -1,6 +1,7 @@
 import { PostForm } from "./post_form.js";
 import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
+import { startPrivateChat } from "./message_form.js";
 
 // Pour stocker les IDs des utilisateurs en ligne
 let onlineUserIds = new Set();
@@ -249,6 +250,10 @@ function updateUsersList(users) {
             userCard.appendChild(userInfo);
             userCard.appendChild(statusIndicator);
             userListContainer.appendChild(userCard);
+
+            userCard.addEventListener("click", () => {
+                startPrivateChat(currentUserID, user.UserId, user.Username);
+            })
 
             // Stocke les références dans userElements pour mises à jour ultérieures
             userElements[user.UserId] = {

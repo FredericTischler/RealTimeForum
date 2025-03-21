@@ -9,7 +9,7 @@ type MessageRepository struct {
 	DB *sql.DB
 }
 
-func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int) ([]*models.Message, error) {
+func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int) (*[]models.Message, error) {
 	query := `SELECT uuid, sender_id, receiver_id, content, created_at 
 			  FROM messages 
 			  WHERE (sender_id = ? AND receiver_id = ?)
@@ -23,9 +23,9 @@ func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int)
 	}
 	defer rows.Close()
 
-	var messages []*models.Message
+	var messages []models.Message
 	for rows.Next() {
-		var msg *models.Message
+		var msg models.Message
 		err = rows.Scan(&msg.MessageId, &msg.SenderId, &msg.ReceiverId, &msg.Content, &msg.SentAt)
 		if err != nil {
 			return nil, err
@@ -34,5 +34,5 @@ func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int)
 		messages = append(messages, msg)
 	}
 
-	return messages, nil
+	return &messages, nil
 }

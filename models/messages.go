@@ -2,14 +2,12 @@ package models
 
 import (
 	"time"
-
-	"github.com/gofrs/uuid"
 )
 
 type Message struct {
-	MessageId  uuid.UUID
-	SenderId   uuid.UUID
-	ReceiverId uuid.UUID
+	MessageId  string
+	SenderId   string
+	ReceiverId string
 	Content    string
 	SentAt     time.Time
 }
