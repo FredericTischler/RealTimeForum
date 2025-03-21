@@ -73,9 +73,9 @@ func DefineTables(db *sql.DB) {
 
 	messagesTable := `CREATE TABLE IF NOT EXISTS messages(
 			"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			"uuid" VARCHAR(36) NOT NULL UNIQUE,
-			"sender_id" VARCHAR(36) NOT NULL UNIQUE,
-			"receiver_id" VARCHAR(36) NOT NULL UNIQUE,
+			"uuid" VARCHAR(36) NOT NULL,
+			"sender_id" VARCHAR(36) NOT NULL,
+			"receiver_id" VARCHAR(36) NOT NULL,
 			"content" TEXT NOT NULL,
 			"created_at" DATETIME NOT NULL,
 			FOREIGN KEY(sender_id) REFERENCES users(uuid) ON DELETE CASCADE,
