@@ -8,7 +8,7 @@ const postsContainer = document.getElementById("postsContainer");
 export let currentCategory = "";
 export let currentKeyword = "";
 
-let limit = 2;
+let limit = 20;
 let offset = 0;
 let isLoading = false;
 let allPostsLoaded = false;
