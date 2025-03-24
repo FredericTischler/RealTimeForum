@@ -3,7 +3,7 @@
     border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background: #fff;
+    background: #1E1E1E;
     padding: 10px;
     font-family: Arial, sans-serif;
     position: fixed;
@@ -25,16 +25,16 @@ h1 {
     display: flex;
     flex-direction: column-reverse;
     padding: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid #E0E0E0;
     border-radius: 5px;
-    background: #f9f9f9;
+    background: #121212;
     margin: 5px;
 }
 
 #chatInput {
     width: calc(100% - 60px);
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #E0E0E0;
     border-radius: 5px;
     outline: none;
     margin: 5px;
@@ -75,5 +75,6 @@ h1 {
     display: flex;
     justify-content: center; 
     align-items: center;
-    height: 100px;
+    height: 50px;
 }
+
