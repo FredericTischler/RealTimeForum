@@ -162,7 +162,6 @@ window.addEventListener("scroll", handleScroll);
 async function displayModal(post) {
     const modal = document.getElementById("postModal");
     const modalContent = document.getElementById("modalContent");
-    const modalTitle = document.getElementById("modalTitle");
 
     modalContent.innerHTML = `
       <div id="modal-post">

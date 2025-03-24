@@ -1,14 +1,16 @@
 // web/views/private_chat.js
 let ws;
 let offset = 0;
+const chatModal = document.getElementById("privateChatModal");
 
 export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
     // Création du modal
-    const chatModal = document.getElementById("privateChatModal");
+    
+    
     chatModal.innerHTML = `
         <div class="chat-box">
             <h1>${targetUsername}</h1>
-            <div id="messages" style="height: 300px; overflow-y: scroll; display: flex; flex-direction: column-reverse;"></div>
+            <div id="messages" style="height: 300px; overflow-y: scroll; display: flex; flex-direction: column;"></div>
             <input type="text" id="chatInput" placeholder="Message...">
             <div class="btnContainer">
                 <button id="sendBtn">Send</button>
@@ -51,6 +53,8 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
 
                 ws.send(JSON.stringify({ to: targetUserId, message }));
                 appendMessage(myUserId, message, myUserId);
+                input.value = "";
+
 
             } catch (error) {
                 console.error("Erreur lors de l'envoi du message :", error);
@@ -66,43 +70,90 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
     // Scroll pour charger plus
     const messagesDiv = document.getElementById("messages");
     messagesDiv.addEventListener("scroll", async () => {
-        if (messagesDiv.scrollTop === messagesDiv.scrollHeight - messagesDiv.clientHeight) {
-            await loadPreviousMessages(targetUserId);
+        if (messagesDiv.scrollTop <= 50) { // Déclenche quand on arrive en haut
+            await loadPreviousMessages(targetUserId, myUserId);
         }
     });
+
+
+   // Rendre le modal visible
+    chatModal.style.display = "flex";
+
+    // Supprimer tout ancien écouteur pour éviter des doublons
+    document.removeEventListener("click", closeChatOnOutsideClick);
+
+    // Ajouter un nouvel écouteur
+    document.addEventListener("click", closeChatOnOutsideClick);
 }
+
+function closeChatOnOutsideClick(event) {
+    const chatBox = document.querySelector(".chat-box");
+
+    // Vérifie si le clic est en dehors du chat
+    if (chatBox && !chatBox.contains(event.target)) {
+        chatModal.style.display = "none";
+        
+        // Supprime l'écouteur pour éviter les conflits lors du prochain affichage
+        document.removeEventListener("click", closeChatOnOutsideClick);
+    }
+}
+
+
+
 
 // Fonction pour charger les messages précédents
 async function loadPreviousMessages(targetUserId, myUserId) {
     try {
+        const messagesDiv = document.getElementById("messages");
+        const previousScrollHeight = messagesDiv.scrollHeight; // Sauvegarder la hauteur avant ajout
+
         const response = await fetch(`/message?with=${targetUserId}&offset=${offset}`, {
             credentials: "include"
         });
+
         if (!response.ok) {
             throw new Error("Erreur lors du chargement des messages");
         }
         
         const messages = await response.json();
 
-        console.log(messages)
+        if (messages.length === 0) return; // Stop si plus de messages
 
-        const container = document.getElementById("messages");
-        messages.reverse().forEach(msg => {
-            console.log(msg.message)
-            appendMessage(msg.SenderId, msg.Content, myUserId);
+        // Ajout des nouveaux messages EN HAUT
+        const fragment = document.createDocumentFragment();
+        messages.forEach(msg => {
+            const messageEl = document.createElement("p");
+            messageEl.innerHTML = `<strong>${msg.SenderId === myUserId ? "Me" : "Them"}:</strong> ${msg.Content}`;
+            msg.SenderId === myUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
+            fragment.prepend(messageEl);
         });
 
-        offset += 10;
+        messagesDiv.prepend(fragment); // Ajouter tout d'un coup pour éviter le reflow
+
+        offset += 10; // Incrémenter l'offset pour éviter de recharger les mêmes messages
+
+        // Ajuster le scroll pour éviter un saut brutal
+        setTimeout(() => {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight - previousScrollHeight;
+        }, 100);
     } catch (error) {
         console.error(error);
     }
 }
 
+
 function appendMessage(senderId, message, currentUserId) {
     const messagesDiv = document.getElementById("messages");
     const messageEl = document.createElement("p");
+
     messageEl.innerHTML = `<strong>${senderId === currentUserId ? "Me" : "Them"}:</strong> ${message}`;
-    senderId === currentUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver')
-    messagesDiv.prepend(messageEl);
+    senderId === currentUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
+
+    messagesDiv.appendChild(messageEl); // Ajouter en bas
+
+    // Scroller vers le bas pour voir le nouveau message
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
+
+
 
