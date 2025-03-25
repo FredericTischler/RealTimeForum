@@ -125,20 +125,8 @@ async function loadPreviousMessages(targetUserId, myUserId) {
             let mounth = date.getMonth()
             let day = date.getDate()
 
-            if (hours <= 9) {
-                hours = "0" + hours
-            }
-            if (minutes <= 9) {
-                minutes = "0" + minutes
-            }
-            if (mounth <= 9) {
-                mounth = "0" + mounth
-            }
-            if (day <= 9) {
-                day = "0" + day
-            }
-
-            messageEl.innerHTML = `<strong>${msg.Content}</strong><br><small>${hours}:${minutes} ${year}-${mounth}-${day}</small>`;
+            messageEl.innerHTML = `<strong>${msg.Content}</strong><br><small>${hours <= 9 ? "0" + hours : hours}:${minutes <= 9 ? "0" + minutes : minutes} 
+            ${year}-${mounth <= 9 ? "0" + mounth : mounth}-${day <= 9 ? "0" + day : day}</small>`;
             msg.SenderId === myUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
             fragment.prepend(messageEl);
         });
@@ -167,20 +155,8 @@ function appendMessage(senderId, message, currentUserId) {
     let mounth = date.getMonth()
     let day = date.getDate()
 
-    if (hours <= 9) {
-        hours = "0" + hours
-    }
-    if (minutes <= 9) {
-        minutes = "0" + minutes
-    }
-    if (mounth <= 9) {
-        mounth = "0" + mounth
-    }
-    if (day <= 9) {
-        day = "0" + day
-    }
-
-    messageEl.innerHTML = `<strong>${message}</strong><br><small>${hours}:${minutes} ${year}-${mounth}-${day}</small>`;
+    messageEl.innerHTML = `<strong>${message}</strong><br><small>${hours <= 9 ? "0" + hours : hours}:${minutes <= 9 ? "0" + minutes : minutes} 
+            ${year}-${mounth <= 9 ? "0" + mounth : mounth}-${day <= 9 ? "0" + day : day}</small>`;
     senderId === currentUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
 
     messagesDiv.appendChild(messageEl); // Ajouter en bas
