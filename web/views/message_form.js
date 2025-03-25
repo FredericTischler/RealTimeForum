@@ -118,7 +118,27 @@ async function loadPreviousMessages(targetUserId, myUserId) {
         const fragment = document.createDocumentFragment();
         messages.forEach(msg => {
             const messageEl = document.createElement("p");
-            messageEl.innerHTML = `${msg.Content}`;
+            let date = new Date(msg.SentAt);
+            let hours = date.getHours()
+            let minutes = date.getMinutes()
+            let year = date.getFullYear()
+            let mounth = date.getMonth()
+            let day = date.getDate()
+
+            if (hours <= 9) {
+                hours = "0" + hours
+            }
+            if (minutes <= 9) {
+                minutes = "0" + minutes
+            }
+            if (mounth <= 9) {
+                mounth = "0" + mounth
+            }
+            if (day <= 9) {
+                day = "0" + day
+            }
+
+            messageEl.innerHTML = `<strong>${msg.Content}</strong><br><small>${hours}:${minutes} ${year}-${mounth}-${day}</small>`;
             msg.SenderId === myUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
             fragment.prepend(messageEl);
         });
@@ -140,8 +160,27 @@ async function loadPreviousMessages(targetUserId, myUserId) {
 function appendMessage(senderId, message, currentUserId) {
     const messagesDiv = document.getElementById("messages");
     const messageEl = document.createElement("p");
+    let date = new Date();
+    let hours = date.getHours()
+    let minutes = date.getMinutes()
+    let year = date.getFullYear()
+    let mounth = date.getMonth()
+    let day = date.getDate()
 
-    messageEl.innerHTML = `${message}`;
+    if (hours <= 9) {
+        hours = "0" + hours
+    }
+    if (minutes <= 9) {
+        minutes = "0" + minutes
+    }
+    if (mounth <= 9) {
+        mounth = "0" + mounth
+    }
+    if (day <= 9) {
+        day = "0" + day
+    }
+
+    messageEl.innerHTML = `<strong>${message}</strong><br><small>${hours}:${minutes} ${year}-${mounth}-${day}</small>`;
     senderId === currentUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
 
     messagesDiv.appendChild(messageEl); // Ajouter en bas

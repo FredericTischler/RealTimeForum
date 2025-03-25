@@ -127,9 +127,15 @@ func AuthStatusHandler(w http.ResponseWriter, r *http.Request, sessionService *s
 		return
 	}
 
-	// Vérifier l'expiration de la session si un expires_at est défini
+	// Vérifier l'expiration de la session
 	if session.ExpireAt.Before(time.Now()) {
-		http.Error(w, "Session expired", http.StatusUnauthorized)
+		// Si la session a expiré, supprimer la session en base de données
+		err := sessionService.DeleteSessionByToken(cookie.Value)
+		if err != nil {
+			http.Error(w, "Failed to delete expired session", http.StatusInternalServerError)
+			return
+		}
+		http.Error(w, "Session expired and deleted", http.StatusUnauthorized)
 		return
 	}
 

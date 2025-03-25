@@ -46,7 +46,7 @@ func (as *AuthService) Login(identifier, password string) (uuid.UUID, string, er
 	}
 
 	createdAt := time.Now()
-	expiresAt := createdAt.Add(24 * time.Hour) // Exemple : session valide 24 heures
+	expiresAt := createdAt.Add(1 * time.Hour) // Exemple : session valide 24 heures
 
 	// Insertion de la session dans la base de données via le session_service
 	_, err = as.SessionService.InsertSession(sessionUUID, user.UserId, tokenUUID.String(), createdAt, &expiresAt)
