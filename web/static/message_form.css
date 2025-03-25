@@ -54,17 +54,17 @@ h1 {
     background: #0056b3;
 }
 
-.sender {
-    text-align: right;
-    background: #BB86FC;
+.receiver {
+    text-align: left;
+    background: #444;
     color: white;
     margin-right: auto;
     padding: 5px;
     border-radius: 10px;
 }
-.receiver {
-    text-align: left;
-    background: #444;
+.sender {
+    text-align: right;
+    background: #BB86FC;
     color: white;
     margin-left: auto;
     padding: 5px;

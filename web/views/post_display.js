@@ -2,9 +2,6 @@
 
 import { displayErrorModal } from './error_modal.js';
 
-const postsContainer = document.getElementById("postsContainer");
-
-
 export let currentCategory = "";
 export let currentKeyword = "";
 
@@ -218,7 +215,7 @@ async function displayModal(post) {
         }
     });
 
-    modal.style.display = "block";
+    modal.style.display = "flex";
 }
 
 // Fonction pour récupérer et afficher les commentaires

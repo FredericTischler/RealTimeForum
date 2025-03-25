@@ -96,14 +96,6 @@
 /* Modal overlay */
 .modal {
     display: none; /* Masqué par défaut */
-    position: fixed;
-    z-index: 1000; /* Au-dessus de tout */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Active le scroll si nécessaire */
-    background-color: rgba(0, 0, 0, 0.6); /* Fond semi-transparent */
 }
 
 /* Conteneur du contenu du modal */

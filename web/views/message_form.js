@@ -5,8 +5,6 @@ const chatModal = document.getElementById("privateChatModal");
 
 export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
     // Création du modal
-    
-    
     chatModal.innerHTML = `
         <div class="chat-box">
             <h1>${targetUsername}</h1>
@@ -98,9 +96,6 @@ function closeChatOnOutsideClick(event) {
     }
 }
 
-
-
-
 // Fonction pour charger les messages précédents
 async function loadPreviousMessages(targetUserId, myUserId) {
     try {
@@ -123,7 +118,7 @@ async function loadPreviousMessages(targetUserId, myUserId) {
         const fragment = document.createDocumentFragment();
         messages.forEach(msg => {
             const messageEl = document.createElement("p");
-            messageEl.innerHTML = `<strong>${msg.SenderId === myUserId ? "Me" : "Them"}:</strong> ${msg.Content}`;
+            messageEl.innerHTML = `${msg.Content}`;
             msg.SenderId === myUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
             fragment.prepend(messageEl);
         });
@@ -146,7 +141,7 @@ function appendMessage(senderId, message, currentUserId) {
     const messagesDiv = document.getElementById("messages");
     const messageEl = document.createElement("p");
 
-    messageEl.innerHTML = `<strong>${senderId === currentUserId ? "Me" : "Them"}:</strong> ${message}`;
+    messageEl.innerHTML = `${message}`;
     senderId === currentUserId ? messageEl.classList.add('sender') : messageEl.classList.add('receiver');
 
     messagesDiv.appendChild(messageEl); // Ajouter en bas
