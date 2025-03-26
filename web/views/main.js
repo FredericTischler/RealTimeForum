@@ -343,7 +343,6 @@ function createUserCard(user, currentUserId) {
     userCard.addEventListener("click", () => {
         startPrivateChat(currentUserId, user.UserId, user.Username);
     });
-    console.log(userCard)
     return userCard;
 }
 
