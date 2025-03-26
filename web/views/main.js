@@ -283,31 +283,35 @@ async function sortUsers(users, currentUserId) {
             })
         );
         
-        // Filtrer les résultats null
+        // Filtrer les résultats null (pour l'utilisateur courant)
         const filtered = lastMessages.filter(item => item !== null);
         
-        // Trier d'abord par statut en ligne (connectés d'abord), puis par date de dernier message, puis par nom
-        filtered.sort((a, b) => {
-            // D'abord trier par statut en ligne (connectés en premier)
-            if (a.isOnline !== b.isOnline) {
-                return b.isOnline - a.isOnline; // true (1) vient avant false (0)
-            }
-            
-            // Ensuite trier par date du dernier message (si disponible)
+        // Séparer les utilisateurs connectés et non connectés
+        const onlineUsers = filtered.filter(item => item.isOnline);
+        const offlineUsers = filtered.filter(item => !item.isOnline);
+        
+        // Trier les utilisateurs connectés par date du dernier message (plus récent d'abord)
+        onlineUsers.sort((a, b) => {
+            // Si les deux ont des messages, trier par date
             if (a.lastMessage && b.lastMessage) {
                 return new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt);
             }
+            // Si seul a a un message, il passe avant
             if (a.lastMessage) return -1;
+            // Si seul b a un message, il passe avant
             if (b.lastMessage) return 1;
-            
-            // Enfin trier par nom d'utilisateur
+            // Sinon trier par nom d'utilisateur
             return a.user.Username.localeCompare(b.user.Username);
         });
         
-        // Retourner seulement les utilisateurs
-        return filtered.map(item => item.user);
+        // Trier les utilisateurs non connectés par nom d'utilisateur
+        offlineUsers.sort((a, b) => a.user.Username.localeCompare(b.user.Username));
+        
+        // Combiner les deux listes (connectés d'abord, puis non connectés)
+        return [...onlineUsers.map(item => item.user), ...offlineUsers.map(item => item.user)];
     } catch (error) {
         console.error("Erreur lors du tri des utilisateurs:", error);
+        // En cas d'erreur, retourner simplement la liste des utilisateurs (sans l'utilisateur courant)
         return users.filter(user => user.UserId !== currentUserId);
     }
 }
