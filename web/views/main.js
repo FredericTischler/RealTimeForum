@@ -28,7 +28,7 @@ async function checkAuthStatus() {
     }
 }
 
-function updateUIAfterLogin() {
+async function updateUIAfterLogin() {
     // Injection dynamique du menu des catégories et de la search bar
     const categoriesDiv = document.getElementById("categories");
     if (categoriesDiv) {
@@ -156,9 +156,9 @@ function updateUIAfterLogin() {
     }
 
     displayPosts();
-    fetchUsers().then(() => {
-        setupWebSocket();
-    });
+    await setupWebSocket();
+    await fetchUsers();
+
 }
 
 function filterUsers(username, gender, age) {
@@ -203,98 +203,167 @@ async function fetchUsers() {
             throw new Error("Erreur lors de la récupération des utilisateurs");
         }
         const users = await response.json();
-        updateUsersList(users);
+        // Appeler updateUsersList directement avec les utilisateurs récupérés
+        await updateUsersList(users);
     } catch (error) {
         console.error(error);
     }
 }
 
-function updateUsersList(users) {
+async function updateUsersList(users) {
     const userListContainer = document.getElementById("usersList");
     if (!userListContainer) return;
 
     userListContainer.innerHTML = "";
     userElements = {}; // réinitialiser les références
 
-    // Récupération de l'utilisateur connecté
-    fetch("/auth/status", { credentials: "include" })
-    .then(response => response.json())
-    .then(authData => {
+    try {
+        const authResponse = await fetch("/auth/status", { credentials: "include" });
+        if (!authResponse.ok) return;
+        
+        const authData = await authResponse.json();
         if (!authData.authenticated) return;
+        
         const currentUserID = authData.userId;
         
-        users.forEach(user => {
+        // Trier les utilisateurs selon les critères
+        const sortedUsers = await sortUsers(users, currentUserID);
+        
+        // Afficher les utilisateurs triés
+        sortedUsers.forEach(user => {
             if (user.UserId !== currentUserID) {
-            const userCard = document.createElement("div");
-            userCard.classList.add("user-card");
-
-            userCard.dataset.username = user.Username;
-            userCard.dataset.gender = user.Gender;
-            userCard.dataset.age = user.Age;
-
-            const avatar = document.createElement("div");
-            avatar.classList.add("user-avatar");
-            avatar.textContent = user.Username.charAt(0).toUpperCase();
-
-            const userInfo = document.createElement("div");
-            userInfo.classList.add("user-info");
-            // Utilise onlineUserIds pour déterminer le statut initial
-            const isOnline = onlineUserIds.has(user.UserId);
-            console.log(user.UserId)
-            userInfo.innerHTML = `<strong>${user.Username}</strong><br><span class="status">${isOnline ? "Online" : "Offline"}</span>`;
-
-            const statusIndicator = document.createElement("div");
-            statusIndicator.classList.add("status-indicator", isOnline ? "online" : "offline");
-
-            userCard.appendChild(avatar);
-            userCard.appendChild(userInfo);
-            userCard.appendChild(statusIndicator);
-            userListContainer.appendChild(userCard);
-
-            userCard.addEventListener("click", () => {
-                startPrivateChat(currentUserID, user.UserId, user.Username);
-            })
-
-            // Stocke les références dans userElements pour mises à jour ultérieures
-            userElements[user.UserId] = {
-                statusText: userInfo.querySelector(".status"),
-                indicator: statusIndicator
-            };
-        }
-        })
-            .catch(error => console.error("Erreur lors de la récupération de l'utilisateur connecté:", error));
-
+                const userCard = createUserCard(user, currentUserID);
+                userListContainer.appendChild(userCard);
+                
+                // Stocke les références dans userElements pour mises à jour ultérieures
+                userElements[user.UserId] = {
+                    statusText: userCard.querySelector(".status"),
+                    indicator: userCard.querySelector(".status-indicator")
+                };
+            }
         });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des données:", error);
+    }
+}
+
+async function sortUsers(users, currentUserId) {
+    try {
+        // Récupérer les derniers messages pour chaque conversation
+        const lastMessages = await Promise.all(
+            users.map(async user => {
+                if (user.UserId === currentUserId) return null;
+                
+                try {
+                    const response = await fetch(`/message?with=${user.UserId}&offset=0&limit=1`, {
+                        credentials: "include"
+                    });
+                    
+                    if (!response.ok) {
+                        console.warn(`Erreur lors de la récupération des messages pour l'utilisateur ${user.UserId}`);
+                        return { user, lastMessage: null };
+                    }
+                    
+                    const messages = await response.json();
+                    
+                    if (!Array.isArray(messages)) {
+                        console.warn(`Réponse inattendue pour les messages de l'utilisateur ${user.UserId}`, messages);
+                        return { user, lastMessage: null };
+                    }
+                    
+                    return {
+                        user,
+                        lastMessage: messages.length > 0 ? messages[0] : null,
+                        isOnline: onlineUserIds.has(user.UserId) // Ajouter le statut en ligne
+                    };
+                } catch (error) {
+                    console.error(`Erreur lors du traitement des messages pour ${user.UserId}:`, error);
+                    return { user, lastMessage: null, isOnline: false };
+                }
+            })
+        );
+        
+        // Filtrer les résultats null
+        const filtered = lastMessages.filter(item => item !== null);
+        
+        // Trier d'abord par statut en ligne (connectés d'abord), puis par date de dernier message, puis par nom
+        filtered.sort((a, b) => {
+            // D'abord trier par statut en ligne (connectés en premier)
+            if (a.isOnline !== b.isOnline) {
+                return b.isOnline - a.isOnline; // true (1) vient avant false (0)
+            }
+            
+            // Ensuite trier par date du dernier message (si disponible)
+            if (a.lastMessage && b.lastMessage) {
+                return new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt);
+            }
+            if (a.lastMessage) return -1;
+            if (b.lastMessage) return 1;
+            
+            // Enfin trier par nom d'utilisateur
+            return a.user.Username.localeCompare(b.user.Username);
+        });
+        
+        // Retourner seulement les utilisateurs
+        return filtered.map(item => item.user);
+    } catch (error) {
+        console.error("Erreur lors du tri des utilisateurs:", error);
+        return users.filter(user => user.UserId !== currentUserId);
+    }
+}
+
+function createUserCard(user, currentUserId) {
+    const userCard = document.createElement("div");
+    userCard.classList.add("user-card");
+    
+    userCard.dataset.username = user.Username;
+    userCard.dataset.gender = user.Gender;
+    userCard.dataset.age = user.Age;
+    
+    const avatar = document.createElement("div");
+    avatar.classList.add("user-avatar");
+    avatar.textContent = user.Username.charAt(0).toUpperCase();
+    
+    const userInfo = document.createElement("div");
+    userInfo.classList.add("user-info");
+    const isOnline = onlineUserIds.has(user.UserId);
+    userInfo.innerHTML = `<strong>${user.Username}</strong><br><span class="status">${isOnline ? "Online" : "Offline"}</span>`;
+    
+    const statusIndicator = document.createElement("div");
+    statusIndicator.classList.add("status-indicator", isOnline ? "online" : "offline");
+    
+    userCard.appendChild(avatar);
+    userCard.appendChild(userInfo);
+    userCard.appendChild(statusIndicator);
+    
+    userCard.addEventListener("click", () => {
+        startPrivateChat(currentUserId, user.UserId, user.Username);
+    });
+    console.log(userCard)
+    return userCard;
 }
 
 function setupWebSocket() {
-    const ws = new WebSocket("ws://localhost:8443/ws");
+    return new Promise((resolve) => {
+        const ws = new WebSocket("ws://localhost:8443/ws");
 
-    ws.onmessage = (event) => {
-        // Supposons que le serveur envoie un tableau d'IDs (strings) des utilisateurs en ligne
-        const data = JSON.parse(event.data);
-        
-        onlineUserIds = new Set(data.map(item => item.UserId));
-        // Met à jour le DOM pour chaque utilisateur présent dans userElements
-        for (const userId in userElements) {
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            onlineUserIds = new Set(data.map(item => item.UserId));
             
-                    userElements[userId].indicator.classList.remove("offline");
-                    userElements[userId].indicator.classList.remove("online");
-                if (onlineUserIds.has(userId)) {
-    
-                    userElements[userId].statusText.textContent = "Online";
-                    userElements[userId].indicator.classList.remove("offline");
-                    userElements[userId].indicator.classList.add("online");
-                } else {
-                    userElements[userId].statusText.textContent = "Offline";
-                    userElements[userId].indicator.classList.remove("online");
-                    userElements[userId].indicator.classList.add("offline");
-                }
-        }
-    
-    };
+            // Mettre à jour les indicateurs de statut
+            for (const userId in userElements) {
+                const isOnline = onlineUserIds.has(userId);
+                userElements[userId].statusText.textContent = isOnline ? "Online" : "Offline";
+                userElements[userId].indicator.className = `status-indicator ${isOnline ? "online" : "offline"}`;
+            }
+            
+            // Résoudre la Promise seulement après avoir reçu la première liste
+            resolve();
+        };
 
-    ws.onopen = () => console.log("WebSocket connecté");
-    ws.onerror = (error) => console.error("WebSocket erreur :", error);
-    ws.onclose = () => console.log("WebSocket fermé");
+        ws.onopen = () => console.log("WebSocket connecté");
+        ws.onerror = (error) => console.error("WebSocket erreur :", error);
+        ws.onclose = () => console.log("WebSocket fermé");
+    });
 }
