@@ -249,72 +249,71 @@ async function updateUsersList(users) {
 
 async function sortUsers(users, currentUserId) {
     try {
-        // Récupérer les derniers messages pour chaque conversation
-        const lastMessages = await Promise.all(
-            users.map(async user => {
-                if (user.UserId === currentUserId) return null;
-                
+        //Séparer les utilisateurs connectés et non connectés
+        const onlineUsers = [];
+        const offlineUsers = [];
+        
+        for (const user of users) {
+            if (user.UserId === currentUserId) continue;
+            
+            if (onlineUserIds.has(user.UserId)) {
+                onlineUsers.push({ user, isOnline: true });
+            } else {
+                offlineUsers.push({ user, isOnline: false });
+            }
+        }
+
+        //Pour les utilisateurs connectés, récupérer les derniers messages
+        const onlineUsersWithMessages = await Promise.all(
+            onlineUsers.map(async ({ user }) => {
                 try {
                     const response = await fetch(`/message?with=${user.UserId}&offset=0&limit=1`, {
                         credentials: "include"
                     });
-                    
+
                     if (!response.ok) {
-                        console.warn(`Erreur lors de la récupération des messages pour l'utilisateur ${user.UserId}`);
                         return { user, lastMessage: null };
                     }
-                    
+
                     const messages = await response.json();
-                    
-                    if (!Array.isArray(messages)) {
-                        console.warn(`Réponse inattendue pour les messages de l'utilisateur ${user.UserId}`, messages);
-                        return { user, lastMessage: null };
-                    }
-                    
                     return {
                         user,
-                        lastMessage: messages.length > 0 ? messages[0] : null,
-                        isOnline: onlineUserIds.has(user.UserId) // Ajouter le statut en ligne
+                        lastMessage: Array.isArray(messages) && messages.length > 0 ? messages[0] : null
                     };
                 } catch (error) {
-                    console.error(`Erreur lors du traitement des messages pour ${user.UserId}:`, error);
-                    return { user, lastMessage: null, isOnline: false };
+                    console.error(`Erreur lors de la récupération des messages pour ${user.UserId}:`, error);
+                    return { user, lastMessage: null };
                 }
             })
         );
-        
-        // Filtrer les résultats null (pour l'utilisateur courant)
-        const filtered = lastMessages.filter(item => item !== null);
-        
-        // Séparer les utilisateurs connectés et non connectés
-        const onlineUsers = filtered.filter(item => item.isOnline);
-        const offlineUsers = filtered.filter(item => !item.isOnline);
-        
-        // Trier les utilisateurs connectés par date du dernier message (plus récent d'abord)
-        onlineUsers.sort((a, b) => {
-            // Si les deux ont des messages, trier par date
+
+        //Trier les utilisateurs connectés
+        onlineUsersWithMessages.sort((a, b) => {
+            // D'abord ceux avec messages (triés par date récente)
             if (a.lastMessage && b.lastMessage) {
                 return new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt);
             }
-            // Si seul a a un message, il passe avant
             if (a.lastMessage) return -1;
-            // Si seul b a un message, il passe avant
             if (b.lastMessage) return 1;
-            // Sinon trier par nom d'utilisateur
+            
+            // Ensuite ceux sans messages (triés par pseudo)
             return a.user.Username.localeCompare(b.user.Username);
         });
-        
-        // Trier les utilisateurs non connectés par nom d'utilisateur
+
+        //Trier les utilisateurs non connectés par pseudo
         offlineUsers.sort((a, b) => a.user.Username.localeCompare(b.user.Username));
-        
-        // Combiner les deux listes (connectés d'abord, puis non connectés)
-        return [...onlineUsers.map(item => item.user), ...offlineUsers.map(item => item.user)];
+
+        //Combiner les listes
+        return [
+            ...onlineUsersWithMessages.map(item => item.user),
+            ...offlineUsers.map(item => item.user)
+        ];
     } catch (error) {
         console.error("Erreur lors du tri des utilisateurs:", error);
-        // En cas d'erreur, retourner simplement la liste des utilisateurs (sans l'utilisateur courant)
         return users.filter(user => user.UserId !== currentUserId);
     }
 }
+
 
 function createUserCard(user, currentUserId) {
     const userCard = document.createElement("div");
