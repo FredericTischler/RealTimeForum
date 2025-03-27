@@ -54,6 +54,7 @@ header {
 #authContainer {
     margin-left: auto;
     margin-right: 2rem;
+    z-index: 1500;
 }
 
 .authButton {
@@ -151,9 +152,8 @@ button:focus {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 75vw;
-    height: 75vh;
-    z-index: 1200;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
