@@ -78,6 +78,7 @@ func DefineTables(db *sql.DB) {
 			"receiver_id" VARCHAR(36) NOT NULL,
 			"content" TEXT NOT NULL,
 			"created_at" DATETIME NOT NULL,
+			"is_read" BOOLEAN NOT NULL DEFAULT FALSE,
 			FOREIGN KEY(sender_id) REFERENCES users(uuid) ON DELETE CASCADE,
 			FOREIGN KEY(receiver_id) REFERENCES users(uuid) ON DELETE CASCADE
 	)`

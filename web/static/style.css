@@ -227,4 +227,116 @@ button:focus {
     background-color: green;
 }
 
-  
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#messagesNotifs {
+    display: flex;
+    align-items: center;
+}
+
+.notification-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#messageIcon {
+    width: 28px;
+    height: 28px;
+    fill: #BB86FC;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#messageIcon:hover {
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ff4d4d;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.notification-badge.hidden {
+    display: none;
+}
+
+#logoutBtn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+#messagesModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    max-width: 90%;
+    background: #1E1E1E;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+#conversationsList {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.message-item {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+
+.message-item:hover {
+    background: #2A2A2A;
+}
+
+.message-sender {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.message-preview {
+    color: #BBB;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.message-time {
+    color: #777;
+    font-size: 0.8em;
+    text-align: right;
+}
+

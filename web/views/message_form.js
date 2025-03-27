@@ -4,6 +4,15 @@ let offset = 0;
 const chatModal = document.getElementById("privateChatModal");
 
 export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
+    // Marquer les messages comme lus
+    await fetch(`/message/mark-as-read?sender_id=${myUserId}`, {
+        method: 'POST',
+        credentials: 'include'
+    });
+        
+    // Recharger le compteur de notifications
+    await checkNewMessages();
+
     // Création du modal
     chatModal.innerHTML = `
         <div class="chat-box">
@@ -164,6 +173,30 @@ function appendMessage(senderId, message, currentUserId) {
     // Scroller vers le bas pour voir le nouveau message
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
+let unreadMessagesCount = 0;
 
+function updateUnreadMessagesCount(count) {
+    unreadMessagesCount = count;
+    const badge = document.getElementById("messageNotification");
+    if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove("hidden");
+    } else {
+        badge.classList.add("hidden");
+    }
+}
 
+export async function checkNewMessages() {
+    try {
+        const response = await fetch("/message/unread", { 
+            credentials: "include" 
+        });
+        if (response.ok) {
+            const data = await response.json();
+            updateUnreadMessagesCount(data.count);
+        }
+    } catch (error) {
+        console.error("Error checking new messages:", error);
+    }
+}
 

@@ -1,7 +1,7 @@
 import { PostForm } from "./post_form.js";
 import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
-import { startPrivateChat } from "./message_form.js";
+import { startPrivateChat,checkNewMessages } from "./message_form.js";
 
 // Pour stocker les IDs des utilisateurs en ligne
 let onlineUserIds = new Set();
@@ -66,6 +66,18 @@ async function updateUIAfterLogin() {
     const registerDiv = document.getElementById("register");
     if (registerDiv) registerDiv.innerHTML = "";
 
+    const messages = document.getElementById("messagesNotifs");
+    if (messages) {
+        messages.innerHTML = `
+        <div class="notification-container">
+            <div id="messageNotification" class="notification-badge hidden"></div>
+            <svg id="messageIcon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#BB86FC" viewBox="0 0 16 16">
+                <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.026A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.026L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/>
+            </svg>
+        </div>
+        `;
+        
+    }
     // Création du bouton Logout
     const logoutButton = document.createElement("button");
     logoutButton.id = "logoutBtn";
@@ -148,6 +160,8 @@ async function updateUIAfterLogin() {
             filterUsers(username, gender, age);
         });
     }
+
+    document.getElementById("messageIcon").addEventListener("click", showMessagesModal);
 
     // Affichage du contenu principal
     const contentContainer = document.querySelector(".content-container");
@@ -351,6 +365,8 @@ function setupWebSocket() {
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            
+            // Mise à jour des utilisateurs en ligne
             onlineUserIds = new Set(data.map(item => item.UserId));
             
             // Mettre à jour les indicateurs de statut
@@ -360,7 +376,9 @@ function setupWebSocket() {
                 userElements[userId].indicator.className = `status-indicator ${isOnline ? "online" : "offline"}`;
             }
             
-            // Résoudre la Promise seulement après avoir reçu la première liste
+            // Vérifier les nouveaux messages (simplifié - en vrai il faudrait un système plus robuste)
+            checkNewMessages();
+            
             resolve();
         };
 
@@ -368,4 +386,90 @@ function setupWebSocket() {
         ws.onerror = (error) => console.error("WebSocket erreur :", error);
         ws.onclose = () => console.log("WebSocket fermé");
     });
+}
+
+// Vérifier les nouveaux messages périodiquement
+setInterval(checkNewMessages, 1000); 
+
+async function showMessagesModal() {
+    const modal = document.createElement("div");
+    modal.id = "messagesModal";
+    modal.innerHTML = `
+        <h2>Vos conversations</h2>
+        <div id="conversationsList"></div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Fermer la modal en cliquant à l'extérieur
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // Charger les conversations
+    await loadConversations();
+    
+    modal.style.display = "block";
+}
+
+async function loadConversations() {
+    try {
+        // Récupérer les utilisateurs
+        const usersResponse = await fetch("/users", { credentials: "include" });
+        if (!usersResponse.ok) return;
+        
+        const users = await usersResponse.json();
+        
+        // Récupérer l'ID de l'utilisateur actuel
+        const authResponse = await fetch("/auth/status", { credentials: "include" });
+        if (!authResponse.ok) return;
+        
+        const authData = await authResponse.json();
+        const currentUserID = authData.userId;
+        
+        // Pour chaque utilisateur, récupérer le dernier message échangé
+        const conversations = await Promise.all(
+            users.filter(u => u.UserId !== currentUserID).map(async user => {
+                const messagesResponse = await fetch(`/message?with=${user.UserId}&offset=0&limit=1`, {
+                    credentials: "include"
+                });
+                
+                if (!messagesResponse.ok) return null;
+                
+                const messages = await messagesResponse.json();
+                return {
+                    user,
+                    lastMessage: messages.length > 0 ? messages[0] : null
+                };
+            })
+        );
+        
+        // Filtrer et trier les conversations
+        const validConversations = conversations.filter(c => c !== null && c.lastMessage !== null);
+        validConversations.sort((a, b) => 
+            new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt)
+        );
+        
+        // Afficher les conversations
+        const list = document.getElementById("conversationsList");
+        list.innerHTML = "";
+        
+        validConversations.forEach(conv => {
+            const item = document.createElement("div");
+            item.className = "message-item";
+            item.innerHTML = `
+                <div class="message-sender">${conv.user.Username}</div>
+                <div class="message-preview">${conv.lastMessage.Content}</div>
+                <div class="message-time">${new Date(conv.lastMessage.SentAt).toLocaleString()}</div>
+            `;
+            item.addEventListener("click", () => {
+                startPrivateChat(currentUserID, conv.user.UserId, conv.user.Username);
+                document.getElementById("messagesModal").remove();
+            });
+            list.appendChild(item);
+        });
+    } catch (error) {
+        console.error("Error loading conversations:", error);
+    }
 }

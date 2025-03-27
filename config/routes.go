@@ -46,6 +46,12 @@ func InitializeRoutes(mux *http.ServeMux, userService *services.UserService, aut
 	mux.HandleFunc("/message/insert", func(w http.ResponseWriter, r *http.Request) {
 		handlers.InsertMessageHandler(w, r, sessionService, messageService)
 	})
+	mux.HandleFunc("/message/unread", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetUnreadMessagesCountHandler(w, r, sessionService, messageService)
+	})
+	mux.HandleFunc("/message/mark-as-read", func(w http.ResponseWriter, r *http.Request) {
+		handlers.MarkMessagesAsReadHandler(w, r, sessionService, messageService)
+	})
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetUsersHandler(w, r, userService)
 	})

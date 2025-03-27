@@ -63,13 +63,21 @@ func (h *Hub) BroadcastUsers() {
 	}
 }
 
-func (h *Hub) BroadcastMessage(receiverID string, message *models.Message) {
+func (h *Hub) BroadcastMessage(senderID, receiverID string, message *models.Message) {
 	for conn, user := range h.clients {
 		if user.UserId == receiverID {
+			// Envoyer le message
 			err := conn.WriteJSON(map[string]interface{}{
-				"type":    "message",
+				"type":    "new_message",
 				"message": message,
 			})
+
+			// Envoyer une notification
+			err = conn.WriteJSON(map[string]interface{}{
+				"type":  "notification",
+				"count": 1, // Incrémenter le compteur
+			})
+
 			if err != nil {
 				conn.Close()
 				delete(h.clients, conn)
