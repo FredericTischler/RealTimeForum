@@ -10,6 +10,7 @@ type Message struct {
 	ReceiverId string
 	Content    string
 	SentAt     time.Time
+	Is_read    bool
 }
 
 type MessageResponse struct {

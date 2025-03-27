@@ -395,7 +395,7 @@ async function showMessagesModal() {
     const modal = document.createElement("div");
     modal.id = "messagesModal";
     modal.innerHTML = `
-        <h2>Vos conversations</h2>
+        <h2>Messages</h2>
         <div id="conversationsList"></div>
     `;
     document.body.appendChild(modal);
@@ -415,61 +415,92 @@ async function showMessagesModal() {
 
 async function loadConversations() {
     try {
-        // Récupérer les utilisateurs
-        const usersResponse = await fetch("/users", { credentials: "include" });
-        if (!usersResponse.ok) return;
-        
-        const users = await usersResponse.json();
-        
-        // Récupérer l'ID de l'utilisateur actuel
-        const authResponse = await fetch("/auth/status", { credentials: "include" });
-        if (!authResponse.ok) return;
-        
+        const response = await fetch('/users', { credentials: 'include' });
+        if (!response.ok) {
+            console.error('Failed to fetch users:', response.status);
+            return;
+        }
+
+        const users = await response.json();
+        if (!users || !Array.isArray(users)) {
+            console.error('Invalid users data:', users);
+            return;
+        }
+
+        const authResponse = await fetch('/auth/status', { credentials: 'include' });
+        if (!authResponse.ok) {
+            console.error('Not authenticated:', authResponse.status);
+            return;
+        }
+
         const authData = await authResponse.json();
         const currentUserID = authData.userId;
+
+        const list = document.getElementById('conversationsList');
+        if (!list) {
+            console.error('Conversations list element not found');
+            return;
+        }
+
+        list.innerHTML = '';
+
+        // Filtrer et traiter chaque conversation
+        const validUsers = users.filter(user => user.UserId && user.UserId !== currentUserID);
         
-        // Pour chaque utilisateur, récupérer le dernier message échangé
         const conversations = await Promise.all(
-            users.filter(u => u.UserId !== currentUserID).map(async user => {
-                const messagesResponse = await fetch(`/message?with=${user.UserId}&offset=0&limit=1`, {
-                    credentials: "include"
-                });
-                
-                if (!messagesResponse.ok) return null;
-                
-                const messages = await messagesResponse.json();
-                return {
-                    user,
-                    lastMessage: messages.length > 0 ? messages[0] : null
-                };
+            validUsers.map(async user => {
+                try {
+                    const messagesResponse = await fetch(`/message?with=${user.UserId}&offset=0&limit=1`, {
+                        credentials: 'include'
+                    });
+
+                    if (!messagesResponse.ok) {
+                        console.error(`Failed to fetch messages for user ${user.UserId}`);
+                        return null;
+                    }
+
+                    const messages = await messagesResponse.json();
+                    return {
+                        user,
+                        lastMessage: Array.isArray(messages) && messages.length > 0 ? messages[0] : null
+                    };
+                } catch (error) {
+                    console.error(`Error processing user ${user.UserId}:`, error);
+                    return null;
+                }
             })
         );
-        
-        // Filtrer et trier les conversations
-        const validConversations = conversations.filter(c => c !== null && c.lastMessage !== null);
-        validConversations.sort((a, b) => 
-            new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt)
-        );
-        
+
+        // Filtrer les conversations valides et les trier
+        const validConversations = conversations.filter(c => c !== null && c.lastMessage !== null)
+            .sort((a, b) => new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt));
+
         // Afficher les conversations
-        const list = document.getElementById("conversationsList");
-        list.innerHTML = "";
-        
+        if (validConversations.length === 0) {
+            list.innerHTML = '<div class="no-conversations">No messages...</div>';
+            return;
+        }
+
         validConversations.forEach(conv => {
-            const item = document.createElement("div");
-            item.className = "message-item";
+            const item = document.createElement('div');
+            item.className = 'conversation-item';
             item.innerHTML = `
-                <div class="message-sender">${conv.user.Username}</div>
+                <div class="user-info">${conv.user.Username}</div>
                 <div class="message-preview">${conv.lastMessage.Content}</div>
                 <div class="message-time">${new Date(conv.lastMessage.SentAt).toLocaleString()}</div>
             `;
-            item.addEventListener("click", () => {
+            item.addEventListener('click', () => {
                 startPrivateChat(currentUserID, conv.user.UserId, conv.user.Username);
-                document.getElementById("messagesModal").remove();
+                document.getElementById('messagesModal').style.display = 'none';
             });
             list.appendChild(item);
         });
+
     } catch (error) {
-        console.error("Error loading conversations:", error);
+        console.error('Error loading conversations:', error);
+        const list = document.getElementById('conversationsList');
+        if (list) {
+            list.innerHTML = '<div class="error-message">Erreur lors du chargement des conversations</div>';
+        }
     }
 }

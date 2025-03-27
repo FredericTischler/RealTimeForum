@@ -14,7 +14,7 @@ type MessageRepository struct {
 }
 
 func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int) (*[]models.Message, error) {
-	query := `SELECT uuid, sender_id, receiver_id, content, created_at 
+	query := `SELECT uuid, sender_id, receiver_id, content, created_at, is_read
 			  FROM messages 
 			  WHERE (sender_id = ? AND receiver_id = ?)
 			  OR (sender_id = ? AND receiver_id = ?)
@@ -31,7 +31,7 @@ func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int)
 	var messages []models.Message
 	for rows.Next() {
 		var msg models.Message
-		err = rows.Scan(&msg.MessageId, &msg.SenderId, &msg.ReceiverId, &msg.Content, &msg.SentAt)
+		err = rows.Scan(&msg.MessageId, &msg.SenderId, &msg.ReceiverId, &msg.Content, &msg.SentAt, &msg.Is_read)
 		if err != nil {
 			return nil, err
 		}
@@ -68,11 +68,10 @@ func (mr *MessageRepository) InsertMessage(message *models.Message) error {
 	return nil
 }
 
-func (mr *MessageRepository) GetUnreadMessagesCount(receiverId string) (int, error) {
+func (mr *MessageRepository) GetUnreadMessagesCount(userId string) (int, error) {
 	var count int
-	query := `SELECT COUNT(*) FROM messages 
-              WHERE receiver_id = ? AND is_read = false`
-	err := mr.DB.QueryRow(query, receiverId).Scan(&count)
+	query := `SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND is_read = 0`
+	err := mr.DB.QueryRow(query, userId).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("failed to count unread messages: %v", err)
 	}

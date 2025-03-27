@@ -40,6 +40,11 @@ func GetPrivateMessageHandler(w http.ResponseWriter, r *http.Request, sessionSer
 		return
 	}
 
+	for _, message := range *messages {
+		err = messageService.MarkMessagesAsRead(message.SenderId, message.ReceiverId)
+		fmt.Println(message)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(messages)
 }

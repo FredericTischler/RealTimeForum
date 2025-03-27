@@ -229,7 +229,6 @@ async function fetchComments(postId) {
             credentials: "include"
         });
 
-        console.log(response)
 
         if (!response.ok) {
             const errorText = await response.text();
