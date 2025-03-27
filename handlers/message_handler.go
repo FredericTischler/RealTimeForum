@@ -42,7 +42,6 @@ func GetPrivateMessageHandler(w http.ResponseWriter, r *http.Request, sessionSer
 
 	for _, message := range *messages {
 		err = messageService.MarkMessagesAsRead(message.SenderId, message.ReceiverId)
-		fmt.Println(message)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -115,35 +114,4 @@ func GetUnreadMessagesCountHandler(w http.ResponseWriter, r *http.Request, sessi
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]int{"count": count})
-}
-
-func MarkMessagesAsReadHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService, messageService *services.MessageService) {
-	// Vérifier la session
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	session, err := sessionService.GetSessionByToken(cookie.Value)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Récupérer l'ID de l'expéditeur (l'utilisateur avec qui je discute)
-	senderId := r.URL.Query().Get("sender_id")
-	if senderId == "" {
-		http.Error(w, "sender_id is required", http.StatusBadRequest)
-		return
-	}
-
-	// Marquer les messages comme lus
-	err = messageService.MarkMessagesAsRead(senderId, session.UserId.String())
-	if err != nil {
-		http.Error(w, "Failed to mark messages as read", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
 }
