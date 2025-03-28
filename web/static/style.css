@@ -303,8 +303,14 @@ button:focus {
     background: #1E1E1E;
     padding: 20px;
     border-radius: 8px;
+    border: 1px solid var(--post-border-color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 1000;
+}
+
+#messagesModal h2 {
+    text-align: center;
+    color:#BB86FC
 }
 
 #conversationsList {

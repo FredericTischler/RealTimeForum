@@ -200,3 +200,154 @@ export async function checkNewMessages() {
     }
 }
 
+export async function showMessagesModal() {
+    
+    let modal = document.getElementById("messagesModal");
+    
+    if (modal) {
+        modal.remove();
+    }
+
+    modal = document.createElement("div");
+    modal.id = "messagesModal";
+    modal.innerHTML = `
+        <h2>${unreadMessagesCount > 0 ? `${unreadMessagesCount} new messages` : 'No new messages'}</h2>
+        <div id="conversationsList"></div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Fermer la modal en cliquant à l'extérieur
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // Charger les conversations avec un filtre pour les nouveaux messages
+    await loadConversations(unreadMessagesCount > 0);
+    
+    modal.style.display = "block";
+}
+
+async function loadConversations(onlyUnread = false) {
+    try {
+        const response = await fetch('/users', { credentials: 'include' });
+        if (!response.ok) {
+            console.error('Failed to fetch users:', response.status);
+            return;
+        }
+
+        const users = await response.json();
+        if (!users || !Array.isArray(users)) {
+            console.error('Invalid users data:', users);
+            return;
+        }
+
+        const authResponse = await fetch('/auth/status', { credentials: 'include' });
+        if (!authResponse.ok) {
+            console.error('Not authenticated:', authResponse.status);
+            return;
+        }
+
+        const authData = await authResponse.json();
+        const currentUserID = authData.userId;
+
+        const list = document.getElementById('conversationsList');
+        if (!list) {
+            console.error('Conversations list element not found');
+            return;
+        }
+
+        // Filtrer et traiter chaque conversation
+        const validUsers = users.filter(user => user.UserId && user.UserId !== currentUserID);
+        
+        const conversations = await Promise.all(
+            validUsers.map(async user => {
+                try {
+                    let url = `/message?with=${user.UserId}&offset=0&limit=1`;
+                    if (onlyUnread) {
+                        url += '&unread=true';
+                    }
+
+                    const messagesResponse = await fetch(url, {
+                        credentials: 'include'
+                    });
+
+                    if (!messagesResponse.ok) {
+                        console.error(`Failed to fetch messages for user ${user.UserId}`);
+                        return null;
+                    }
+
+                    const messages = await messagesResponse.json();
+
+                    console.log(messages)
+                    
+                    // Si on ne veut que les non lus et qu'il n'y en a pas, on ignore
+                    if (onlyUnread && (!Array.isArray(messages) || messages.length === 0)) {
+                        return null;
+                    }
+
+                    return {
+                        user,
+                        lastMessage: Array.isArray(messages) && messages.length > 0 ? messages[0] : null
+                    };
+                } catch (error) {
+                    console.error(`Error processing user ${user.UserId}:`, error);
+                    return null;
+                }
+            })
+        );
+
+        // Filtrer les conversations valides et les trier
+        const validConversations = conversations.filter(c => c !== null)
+            .sort((a, b) => {
+                if (a.lastMessage && b.lastMessage) {
+                    return new Date(b.lastMessage.SentAt) - new Date(a.lastMessage.SentAt);
+                }
+                if (a.lastMessage) return -1;
+                if (b.lastMessage) return 1;
+                return 0;
+            });
+
+        // Afficher les conversations
+        if (validConversations.length === 0) {
+            list.innerHTML = '<div class="no-conversations">' + 
+                (onlyUnread ? 'No new messages...' : 'No messages...') + 
+                '</div>';
+            return;
+        }
+
+
+        validConversations.forEach(conv => {
+            const item = document.createElement('div');
+            item.className = 'conversation-item';
+            
+            // Ajouter une classe si le message est non lu
+            const isUnread = conv.lastMessage && !conv.lastMessage.Is_read && 
+                             conv.lastMessage.SenderId !== currentUserID;
+            if (isUnread) {
+                item.classList.add('unread-message');
+            }
+            
+            item.innerHTML = `
+                <div class="user-info">${conv.user.Username}</div>
+                <div class="message-preview">${conv.lastMessage?.Content || ''}</div>
+                <div class="message-time">${
+                    conv.lastMessage ? new Date(conv.lastMessage.SentAt).toLocaleString() : ''
+                }</div>
+            `;
+            item.addEventListener('click', () => {
+                startPrivateChat(currentUserID, conv.user.UserId, conv.user.Username);
+                document.getElementById('messagesModal').style.display = 'none';
+            });
+            list.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error('Error loading conversations:', error);
+        const list = document.getElementById('conversationsList');
+        if (list) {
+            list.innerHTML = '<div class="error-message">Error loading conversations</div>';
+        }
+    }
+}
