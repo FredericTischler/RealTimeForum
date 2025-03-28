@@ -173,6 +173,7 @@ function appendMessage(senderId, message, currentUserId) {
     // Scroller vers le bas pour voir le nouveau message
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
+
 let unreadMessagesCount = 0;
 
 function updateUnreadMessagesCount(count) {
@@ -201,7 +202,7 @@ export async function checkNewMessages() {
 }
 
 export async function showMessagesModal() {
-    
+
     let modal = document.getElementById("messagesModal");
     
     if (modal) {
