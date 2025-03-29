@@ -12,7 +12,7 @@ export function displayErrorModal(message) {
 
     // Bouton pour fermer le modal
     const closeButton = document.createElement("button");
-    closeButton.textContent = "Fermer";
+    closeButton.textContent = "Close";
     closeButton.addEventListener("click", () => {
         overlay.remove();
     });

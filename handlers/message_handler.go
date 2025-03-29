@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"forum/models"
 	"forum/services"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -14,34 +15,44 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPrivateMessageHandler(w http.ResponseWriter, r *http.Request, sessionService *services.SessionService, messageService *services.MessageService) {
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
+	// Récupérer les paramètres de la requête
+	queryParams := r.URL.Query()
+	withUserId := queryParams.Get("with")
+	offsetStr := queryParams.Get("offset")
+	onlyUnread := queryParams.Get("unread") == "true" // Nouveau paramètre
 
-	session, err := sessionService.GetSessionByToken(cookie.Value)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
-
-	withUserId := r.URL.Query().Get("with")
-	offsetStr := r.URL.Query().Get("offset")
-
+	// Convertir offset en int
 	offset, err := strconv.Atoi(offsetStr)
 	if err != nil {
 		offset = 0
 	}
 
-	messages, err := messageService.GetMessage(session.UserId.String(), withUserId, offset)
+	// Récupérer l'ID de l'utilisateur depuis la session
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	session, err := sessionService.GetSessionByToken(cookie.Value)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Récupérer les messages avec le nouveau filtre
+	messages, err := messageService.GetMessages(session.UserId.String(), withUserId, offset, onlyUnread)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	for _, message := range *messages {
-		_ = messageService.MarkMessagesAsRead(message.SenderId, message.ReceiverId)
+	// Marquer comme lus si nécessaire
+	if !onlyUnread {
+		err = messageService.MarkMessagesAsRead(withUserId, session.UserId.String())
+		if err != nil {
+			log.Printf("Failed to mark messages as read: %v", err)
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

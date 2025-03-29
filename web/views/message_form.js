@@ -2,9 +2,11 @@
 let ws;
 let offset = 0;
 const chatModal = document.getElementById("privateChatModal");
+export let isChatOpen = false;
 
 export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
     // Marquer les messages comme lus
+    isChatOpen = true;
     await fetch(`/message/mark-as-read?sender_id=${myUserId}`, {
         method: 'POST',
         credentials: 'include'
@@ -34,14 +36,20 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
         appendMessage(msg.from, msg.message, myUserId);
     };
 
-    
+    const input = document.getElementById("chatInput");
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            document.getElementById("sendBtn").click();
+        }
+    });
     document.getElementById("sendBtn").addEventListener("click", async () => {
-        const input = document.getElementById("chatInput");
         const message = input.value.trim();
     
         if (message !== "") {
             try {
                 // Envoyer le message au serveur
+                isChatOpen = true;
                 const response = await fetch("/message/insert", {
                     method: "POST",
                     headers: {
@@ -73,7 +81,7 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
     // Chargement initial des 10 derniers messages
     offset = 0;
     await loadPreviousMessages(targetUserId, myUserId);
-
+    
     // Scroll pour charger plus
     const messagesDiv = document.getElementById("messages");
     messagesDiv.addEventListener("scroll", async () => {
@@ -94,12 +102,13 @@ export async function startPrivateChat(myUserId, targetUserId, targetUsername) {
 }
 
 function closeChatOnOutsideClick(event) {
+    
     const chatBox = document.querySelector(".chat-box");
 
     // Vérifie si le clic est en dehors du chat
     if (chatBox && !chatBox.contains(event.target)) {
         chatModal.style.display = "none";
-        
+        isChatOpen = false;
         // Supprime l'écouteur pour éviter les conflits lors du prochain affichage
         document.removeEventListener("click", closeChatOnOutsideClick);
     }
@@ -107,6 +116,8 @@ function closeChatOnOutsideClick(event) {
 
 // Fonction pour charger les messages précédents
 async function loadPreviousMessages(targetUserId, myUserId) {
+    isChatOpen = true;
+    
     try {
         const messagesDiv = document.getElementById("messages");
         const previousScrollHeight = messagesDiv.scrollHeight; // Sauvegarder la hauteur avant ajout
@@ -177,6 +188,7 @@ function appendMessage(senderId, message, currentUserId) {
 let unreadMessagesCount = 0;
 
 function updateUnreadMessagesCount(count) {
+    if (isChatOpen) return;
     unreadMessagesCount = count;
     const badge = document.getElementById("messageNotification");
     if (count > 0) {
@@ -188,17 +200,17 @@ function updateUnreadMessagesCount(count) {
 }
 
 export async function checkNewMessages() {
-    try {
-        const response = await fetch("/message/unread", { 
-            credentials: "include" 
-        });
-        if (response.ok) {
-            const data = await response.json();
-            updateUnreadMessagesCount(data.count);
+        try {
+            const response = await fetch("/message/unread", { 
+                credentials: "include" 
+            });
+            if (response.ok) {
+                const data = await response.json();
+                updateUnreadMessagesCount(data.count);
+            }
+        } catch (error) {
+            console.error("Error checking new messages:", error);
         }
-    } catch (error) {
-        console.error("Error checking new messages:", error);
-    }
 }
 
 export async function showMessagesModal() {
@@ -212,7 +224,7 @@ export async function showMessagesModal() {
     modal = document.createElement("div");
     modal.id = "messagesModal";
     modal.innerHTML = `
-        <h2>${unreadMessagesCount > 0 ? `${unreadMessagesCount} new messages` : 'No new messages'}</h2>
+        <h2>${unreadMessagesCount > 0 ?  unreadMessagesCount == 1 ? `${unreadMessagesCount} new message recorded` : `${unreadMessagesCount} new messages recorded` : 'No new messages'}</h2>
         <div id="conversationsList"></div>
     `;
     document.body.appendChild(modal);
@@ -220,7 +232,7 @@ export async function showMessagesModal() {
     // Fermer la modal en cliquant à l'extérieur
     modal.addEventListener("click", (e) => {
         if (e.target === modal) {
-            modal.remove();
+            modal.style = "display: none;";
         }
     });
     
@@ -231,6 +243,7 @@ export async function showMessagesModal() {
 }
 
 async function loadConversations(onlyUnread = false) {
+    
     try {
         const response = await fetch('/users', { credentials: 'include' });
         if (!response.ok) {
@@ -268,6 +281,8 @@ async function loadConversations(onlyUnread = false) {
                     let url = `/message?with=${user.UserId}&offset=0&limit=1`;
                     if (onlyUnread) {
                         url += '&unread=true';
+                    } else {
+                        return
                     }
 
                     const messagesResponse = await fetch(url, {
@@ -348,7 +363,7 @@ async function loadConversations(onlyUnread = false) {
         console.error('Error loading conversations:', error);
         const list = document.getElementById('conversationsList');
         if (list) {
-            list.innerHTML = '<div class="error-message">Error loading conversations</div>';
+            list.innerHTML = '<div class="error-message"></div>';
         }
     }
 }

@@ -13,18 +13,28 @@ type MessageRepository struct {
 	DB *sql.DB
 }
 
-func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int) (*[]models.Message, error) {
-	query := `SELECT uuid, sender_id, receiver_id, content, created_at, is_read
-			  FROM messages 
-			  WHERE (sender_id = ? AND receiver_id = ?)
-			  OR (sender_id = ? AND receiver_id = ?)
-			  ORDER By created_at DESC
-			  LIMIT 10
-			  OFFSET ?
-			  `
-	rows, err := mr.DB.Query(query, userId, withUserId, withUserId, userId, offset)
+func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int, onlyUnread bool) (*[]models.Message, error) {
+	var query string
+	var args []interface{}
+
+	// Construction dynamique de la requête
+	baseQuery := `SELECT uuid, sender_id, receiver_id, content, created_at, is_read
+                 FROM messages 
+                 WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))`
+
+	args = append(args, userId, withUserId, withUserId, userId)
+
+	if onlyUnread {
+		baseQuery += " AND is_read = false AND receiver_id = ?"
+		args = append(args, userId)
+	}
+
+	query = baseQuery + ` ORDER BY created_at DESC LIMIT 10 OFFSET ?`
+	args = append(args, offset)
+
+	rows, err := mr.DB.Query(query, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query messages: %v", err)
 	}
 	defer rows.Close()
 
@@ -33,9 +43,8 @@ func (mr *MessageRepository) LoadMessages(userId, withUserId string, offset int)
 		var msg models.Message
 		err = rows.Scan(&msg.MessageId, &msg.SenderId, &msg.ReceiverId, &msg.Content, &msg.SentAt, &msg.Is_read)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan message: %v", err)
 		}
-
 		messages = append(messages, msg)
 	}
 

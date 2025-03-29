@@ -34,14 +34,13 @@ export function displayLoginForm() {
             });
             if (!response.ok) {
                 const errorText = await response.text();
-                displayErrorModal("Erreur: " + errorText);
+                displayErrorModal(errorText);
                 return;
             }
             // Après login, recharger la page pour afficher l'interface connectée
             location.reload();
         } catch (err) {
-            console.error("Erreur lors du login", err);
-            displayErrorModal("Le login a échoué, veuillez réessayer.");
+            displayErrorModal(err);
         }
     });
 

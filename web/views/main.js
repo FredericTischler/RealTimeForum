@@ -1,7 +1,7 @@
 import { PostForm } from "./post_form.js";
 import { displayPosts, updateFilters } from "./post_display.js";
 import { displayLoginForm } from "./auth_form.js";
-import { startPrivateChat, checkNewMessages, showMessagesModal } from "./message_form.js";
+import { startPrivateChat, checkNewMessages, showMessagesModal, isChatOpen } from "./message_form.js";
 
 // Pour stocker les IDs des utilisateurs en ligne
 let onlineUserIds = new Set();
@@ -129,7 +129,7 @@ async function updateUIAfterLogin() {
             <div class="filter-group">
                 <label for="userGender">Gender :</label>
                 <select id="userGender" name="gender">
-                <option value="">Tous</option>
+                <option value="">--All genders--</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
@@ -377,6 +377,7 @@ function setupWebSocket() {
             }
             
             // Vérifier les nouveaux messages (simplifié - en vrai il faudrait un système plus robuste)
+            if(isChatOpen)return
             checkNewMessages();
             
             resolve();
@@ -389,5 +390,8 @@ function setupWebSocket() {
 }
 
 // Vérifier les nouveaux messages périodiquement
-setInterval(checkNewMessages, 1000); 
+if(!isChatOpen){
+    setInterval(checkNewMessages, 1000); 
+
+}
 
