@@ -92,8 +92,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, authService *services.
 		Value:    token,           // le token retourné par le service d'authentification
 		Path:     "/",             // le cookie sera accessible sur l'ensemble du domaine
 		HttpOnly: true,            // améliore la sécurité en interdisant l'accès via JavaScript
-		// Secure: true,         // à activer en production sous HTTPS
-		// Optionnel : définir une date d'expiration si nécessaire
+		Secure:   false,           // false pour le développement local
+		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(w, cookie)
 
