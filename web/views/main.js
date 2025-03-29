@@ -263,9 +263,7 @@ async function updateUsersList(users) {
 
 async function sortUsers(users, currentUserId) {
     try {
-        //Séparer les utilisateurs connectés et non connectés
         const onlineUsers = [];
-        const offlineUsers = [];
         
         for (const user of users) {
             if (user.UserId === currentUserId) continue;
@@ -273,11 +271,11 @@ async function sortUsers(users, currentUserId) {
             if (onlineUserIds.has(user.UserId)) {
                 onlineUsers.push({ user, isOnline: true });
             } else {
-                offlineUsers.push({ user, isOnline: false });
+                onlineUsers.push({ user, isOnline: false });
             }
         }
 
-        //Pour les utilisateurs connectés, récupérer les derniers messages
+        // récupérer les derniers messages
         const onlineUsersWithMessages = await Promise.all(
             onlineUsers.map(async ({ user }) => {
                 try {
@@ -301,7 +299,7 @@ async function sortUsers(users, currentUserId) {
             })
         );
 
-        //Trier les utilisateurs connectés
+        //Trier les utilisateurs 
         onlineUsersWithMessages.sort((a, b) => {
             // D'abord ceux avec messages (triés par date récente)
             if (a.lastMessage && b.lastMessage) {
@@ -314,14 +312,9 @@ async function sortUsers(users, currentUserId) {
             return a.user.Username.localeCompare(b.user.Username);
         });
 
-        //Trier les utilisateurs non connectés par pseudo
-        offlineUsers.sort((a, b) => a.user.Username.localeCompare(b.user.Username));
 
-        //Combiner les listes
-        return [
-            ...onlineUsersWithMessages.map(item => item.user),
-            ...offlineUsers.map(item => item.user)
-        ];
+        
+        return onlineUsersWithMessages.map(item => item.user);
     } catch (error) {
         console.error("Erreur lors du tri des utilisateurs:", error);
         return users.filter(user => user.UserId !== currentUserId);
