@@ -383,8 +383,7 @@ function setupWebSocket() {
 }
 
 // Vérifier les nouveaux messages périodiquement
-if(!isChatOpen){
-    setInterval(checkNewMessages, 1000); 
 
-}
+setInterval(checkNewMessages, 1000); 
+
 
