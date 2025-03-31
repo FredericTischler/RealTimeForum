@@ -74,7 +74,7 @@ By completing this project, you will gain experience in:
 - Backend and frontend communication.
 - Managing WebSockets in both Go and JavaScript.
 - Database manipulation using SQL.
-- Concurrency management with Go routines and channels.
+
 
 
 
