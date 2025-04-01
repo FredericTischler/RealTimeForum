@@ -48,7 +48,7 @@ func GetPrivateMessageHandler(w http.ResponseWriter, r *http.Request, sessionSer
 	}
 
 	// Marquer comme lus si nécessaire
-	if !onlyUnread {
+	if onlyUnread {
 		err = messageService.MarkMessagesAsRead(withUserId, session.UserId.String())
 		if err != nil {
 			log.Printf("Failed to mark messages as read: %v", err)

@@ -16,7 +16,7 @@ type userLimiter struct {
 
 var (
 	// Définir le nombre maximum de requêtes autorisées par intervalle
-	limitPerInterval = 100
+	// limitPerInterval = 100
 	// Intervalle de temps pour le reset des compteurs (ici 1 minute)
 	interval = time.Minute
 
@@ -60,11 +60,11 @@ func SessionRateLimiter(sessionService *services.SessionService, next http.Handl
 		}
 
 		// Si le nombre de requêtes dépasse la limite, on retourne une erreur HTTP 429
-		if limiter.count >= limitPerInterval {
-			mu.Unlock()
-			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
-			return
-		}
+		// if limiter.count >= limitPerInterval {
+		// 	mu.Unlock()
+		// 	http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+		// 	return
+		// }
 
 		// Sinon, on incrémente le compteur et on passe au handler suivant
 		limiter.count++

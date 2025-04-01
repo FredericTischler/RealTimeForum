@@ -142,7 +142,7 @@ async function loadPreviousMessages(targetUserId, myUserId) {
             let hours = date.getHours()
             let minutes = date.getMinutes()
             let year = date.getFullYear()
-            let mounth = date.getMonth()
+            let mounth = date.getMonth() + 1
             let day = date.getDate()
 
             messageEl.innerHTML = `<strong>${msg.Content}</strong><br><small>${hours <= 9 ? "0" + hours : hours}:${minutes <= 9 ? "0" + minutes : minutes} 
@@ -172,8 +172,10 @@ function appendMessage(senderId, message, currentUserId) {
     let hours = date.getHours()
     let minutes = date.getMinutes()
     let year = date.getFullYear()
-    let mounth = date.getMonth()
+    let mounth = date.getMonth() + 1
     let day = date.getDate()
+
+    console.log(mounth)
 
     messageEl.innerHTML = `<strong>${message}</strong><br><small>${hours <= 9 ? "0" + hours : hours}:${minutes <= 9 ? "0" + minutes : minutes} 
             ${year}-${mounth <= 9 ? "0" + mounth : mounth}-${day <= 9 ? "0" + day : day}</small>`;
@@ -229,7 +231,7 @@ export async function showMessagesModal() {
     `;
     document.body.appendChild(modal);
     
-    // Fermer la modal en cliquant à l'extérieur
+    // Fermer la modal en cliquant à l'intérieur
     modal.addEventListener("click", (e) => {
         if (e.target === modal) {
             modal.style = "display: none;";
@@ -296,7 +298,6 @@ async function loadConversations(onlyUnread = false) {
 
                     const messages = await messagesResponse.json();
 
-                    console.log(messages)
                     
                     // Si on ne veut que les non lus et qu'il n'y en a pas, on ignore
                     if (onlyUnread && (!Array.isArray(messages) || messages.length === 0)) {
